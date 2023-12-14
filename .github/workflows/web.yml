@@ -257,7 +257,7 @@ jobs:
           module: centreon
 
       - name: Archive videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: cypress-videos
@@ -295,7 +295,7 @@ jobs:
           module: centreon
 
       - name: Publish report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
