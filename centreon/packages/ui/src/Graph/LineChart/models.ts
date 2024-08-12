@@ -4,12 +4,8 @@ import { ScaleLinear } from 'd3-scale';
 
 import { Line, TimeValue } from '../common/timeSeries/models';
 import { LineChartData } from '../common/models';
+import { AxisX, Axis as AxisYLeft, AxisYRight } from '../common/Axes/models';
 
-import {
-  AxisX,
-  Axis as AxisYLeft,
-  AxisYRight
-} from './BasicComponents/Axes/models';
 import {
   AreaRegularLines,
   AreaStackedLines
@@ -146,6 +142,7 @@ export interface VariationThreshold {
 }
 
 export interface BasicThreshold {
+  id?: string;
   type: ThresholdType.basic;
 }
 
@@ -158,6 +155,7 @@ export interface GlobalAreaLines {
 }
 export interface LegendModel {
   display?: boolean;
+  height?: number;
   mode: 'grid' | 'list';
   placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
