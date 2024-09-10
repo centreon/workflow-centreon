@@ -42,7 +42,6 @@ jobs:
       os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
       release_type: ${{ steps.get_version.outputs.release_type }}
       release_cloud: ${{ steps.get_version.outputs.release_cloud }}
-      pull_request_environment: ${{ steps.get_version.outputs.pull_request_environment}}
 
     steps:
       - name: review state
