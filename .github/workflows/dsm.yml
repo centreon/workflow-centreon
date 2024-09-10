@@ -35,11 +35,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - id: validate
-        if: ${{ github.event_name == 'pull_request_target' }}
         run: |
-          ENVIRONMENT_PULL_REQUEST="external_contributor"
-          if [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="internal_contributor"
+          ENVIRONMENT_PULL_REQUEST="internal_contributor"
+          if [[ ${{ github.event_name == 'pull_request_target' }} ]] && [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
+            ENVIRONMENT_PULL_REQUEST="external_contributor"
           fi
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
     outputs:
