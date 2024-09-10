@@ -44,11 +44,6 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud }}
 
     steps:
-      - name: review state
-        run: |
-          echo "review state = ${{ github.event.review.state }}"
-          echo "external contrib = ${{ github.author_association }}"
-
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
