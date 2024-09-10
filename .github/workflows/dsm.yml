@@ -37,7 +37,7 @@ jobs:
       - id: validate
         run: |
           ENVIRONMENT_PULL_REQUEST="internal_contributor"
-          if [[ ${{ github.event_name == 'pull_request_target' }} ]] && [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
+          if [[ ${{ github.event.pull_request }} ]] && [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
             ENVIRONMENT_PULL_REQUEST="external_contributor"
           fi
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
