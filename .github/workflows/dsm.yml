@@ -45,7 +45,7 @@ jobs:
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
 
   get-version:
-    environment: ${{ need.validation.outputs.environment_pull_request }}
+    environment: ${{ needs.validation.outputs.environment_pull_request }}
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
