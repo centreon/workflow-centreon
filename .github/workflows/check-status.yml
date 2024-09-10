@@ -6,7 +6,7 @@ concurrency:
 
 on:
   workflow_run:
-    workflows: [validate]
+    workflows: [ "validate run" ]
     types:
       - completed
 #  pull_request:
