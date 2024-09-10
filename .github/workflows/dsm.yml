@@ -36,7 +36,7 @@ jobs:
     outputs:
       environment_pull_request: ${{ steps.validate.outputs.environment_pull_request }}
     steps:
-      -name: validate
+      - name: validate
         run: |
           ENVIRONMENT_PULL_REQUEST="external_contributor"
           if [[ "${{ github.author_association }}" != "MEMBER" || "${{ github.author_association }}" != "CONTRIBUTOR" || "${{ github.author_association }}" != "OWNER" ]]; then
