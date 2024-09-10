@@ -47,10 +47,10 @@ jobs:
         shell: bash
 
   get-version:
-    #environment: ${{ need.validation.outputs.environment_pull_request }}
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      environment_pull_request: ${{ needs.validate.outputs.environment_pull_request }}
 
   veracode-analysis:
     needs: [get-version]
