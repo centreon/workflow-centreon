@@ -37,15 +37,17 @@ jobs:
       environment_pull_request: ${{ steps.validate.outputs.environment_pull_request }}
     steps:
       - name: validate
+        id: validate
         run: |
-          ENVIRONMENT_PULL_REQUEST="external_contributor"
-          if [[ "${{ github.author_association }}" != "MEMBER" || "${{ github.author_association }}" != "CONTRIBUTOR" || "${{ github.author_association }}" != "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="internal_contributor"
+          ENVIRONMENT_PULL_REQUEST="internal_contributor"
+          if [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
+            ENVIRONMENT_PULL_REQUEST="external_contributor"
           fi
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
+        shell: bash
 
   get-version:
-    environment: ${{ need.validation.outputs.environment_pull_request }}
+    #environment: ${{ need.validation.outputs.environment_pull_request }}
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
