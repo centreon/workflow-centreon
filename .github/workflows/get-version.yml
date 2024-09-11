@@ -4,6 +4,10 @@ on:
       version_file:
         required: true
         type: string
+      environment_pull_request:
+        description: "environment for pull request runs"
+        required: true
+        type: string
     outputs:
       major_version:
         description: "major version"
@@ -30,9 +34,11 @@ on:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-version.outputs.release_cloud }}
 
+
 jobs:
   get-version:
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.environment_pull_request }}
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}

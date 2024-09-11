@@ -34,14 +34,15 @@ jobs:
   validation:
     runs-on: ubuntu-22.04
     steps:
-      - id: validate
+      - name: Validate potential external contributions
+        id: validate
         run: |
-          ENVIRONMENT_PULL_REQUEST="internal_contributor"
-          if [[ "${{ github.event_name }}" == 'pull_request_target' &&
-                "${{ github.event.pull_request.author_association }}" != "MEMBER" &&
-                "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" &&
-                "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="external_contributor"
+          ENVIRONMENT_PULL_REQUEST="external_contributor"
+          if [[ "${{ github.event_name }}" == 'pull_request_target' ]] && [[
+                "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
+                "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
+                "${{ github.event.pull_request.author_association }}" == "OWNER" ]]; then
+            ENVIRONMENT_PULL_REQUEST="internal_contribution"
           fi
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
         shell: bash
@@ -49,23 +50,11 @@ jobs:
       environment_pull_request: ${{ steps.validate.outputs.environment_pull_request }}
 
   get-version:
-    runs-on: ubuntu-22.04
+    uses: ./.github/workflows/get-version.yml
     needs: [validation]
-    environment: ${{ needs.validation.outputs.environment_pull_request }}
-    steps:
-      - uses: ./.github/workflows/get-version.yml
-        id: get_version
-        with:
-          version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
-    outputs:
-      major_version: ${{ steps.get_version.outputs.major_version }}
-      minor_version: ${{ steps.get_version.outputs.minor_version }}
-      release: ${{ steps.get_version.outputs.release }}
-      stability: ${{ steps.get_version.outputs.stability }}
-      environment: ${{ steps.get_version.outputs.env }}
-      os_and_database_matrix: ${{ steps.get_version.outputs.result }}
-      release_type: ${{ steps.get_version.outputs.release_type }}
-      release_cloud: ${{ steps.get_version.outputs.release_cloud }}
+    with:
+      version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      environment_pull_request: ${{ needs.validation.outputs.environment_pull_request }}
 
   veracode-analysis:
     needs: [get-version]
