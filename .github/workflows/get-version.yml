@@ -4,8 +4,8 @@ on:
       version_file:
         required: true
         type: string
-      environment_pull_request:
-        description: "environment for pull request runs"
+      pull_request_environment:
+        description: "Environment for workflow run deployment"
         required: true
         type: string
     outputs:
@@ -38,7 +38,7 @@ on:
 jobs:
   get-version:
     runs-on: ubuntu-22.04
-    environment: ${{ inputs.environment_pull_request }}
+    environment: ${{ inputs.pull_request_environment }}
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}

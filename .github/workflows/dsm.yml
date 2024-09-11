@@ -31,30 +31,15 @@ env:
   module: dsm
 
 jobs:
-  validation:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Validate potential external contributions
-        id: validate
-        run: |
-          ENVIRONMENT_PULL_REQUEST="external_contributor"
-          if [[ "${{ github.event_name }}" == 'pull_request_target' ]] && [[
-                "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
-                "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
-                "${{ github.event.pull_request.author_association }}" == "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="internal_contributor"
-          fi
-          echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
-        shell: bash
-    outputs:
-      environment_pull_request: ${{ steps.validate.outputs.environment_pull_request }}
+  set-pr-environment:
+    uses: ./.github/workflows/set-pr-environment.yml
 
   get-version:
     uses: ./.github/workflows/get-version.yml
-    needs: [validation]
+    needs: [set-pr-environment]
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
-      environment_pull_request: ${{ needs.validation.outputs.environment_pull_request }}
+      pull_request_environment: ${{ needs.set-pr-environment.outputs.pull_request_environment }}
 
   veracode-analysis:
     needs: [get-version]
