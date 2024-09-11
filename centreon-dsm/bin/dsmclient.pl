@@ -15,7 +15,6 @@ use base qw(centreon::script);
 
 use vars qw(%dsmclient_config);
 
-
 sub new {
     my $class = shift;
     my $self = $class->SUPER::new("dsmclient",
