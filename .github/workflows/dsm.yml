@@ -42,7 +42,7 @@ jobs:
                 "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
                 "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
                 "${{ github.event.pull_request.author_association }}" == "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="internal_contribution"
+            ENVIRONMENT_PULL_REQUEST="internal_contributor"
           fi
           echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
         shell: bash
