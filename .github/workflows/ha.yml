@@ -41,7 +41,7 @@ jobs:
 
 #   package:
 #     needs: [get-version]
-#     if: ${{ needs.get-version.outputs.stability != 'stable' }}
+#     if: ${{ needs.get-version.outputs.stability != 'stable' && github.event.pull_request.base.repo.name  == 'centreon' }}
 
 #     strategy:
 #       fail-fast: true

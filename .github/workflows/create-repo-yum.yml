@@ -23,6 +23,7 @@ jobs:
 
   create-repo-file-and-deliver:
     needs: [get-version]
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: ubuntu-22.04
     strategy:
       matrix:

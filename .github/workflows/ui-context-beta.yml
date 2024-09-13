@@ -30,6 +30,7 @@ jobs:
           lint_path: ./src/
 
   publish-new-npm-beta-version:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: ubuntu-22.04
     needs: lint
 
