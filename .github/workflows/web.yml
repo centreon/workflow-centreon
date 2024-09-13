@@ -119,7 +119,7 @@ jobs:
           features_path: centreon/tests/e2e/features
 
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' }}
+    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.event.pull_request.base.repo.name == 'centreon' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
@@ -939,7 +939,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event.pull_request.base.repo.name  == 'centreon' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -972,7 +972,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event.pull_request.base.repo.name  == 'centreon' }}
 
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -1002,7 +1002,8 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.base.repo.name  == 'centreon'
     runs-on: [self-hosted, common]
     strategy:
       matrix:

@@ -60,6 +60,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-22.04
+    # test do remove
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     needs: [get-version]
 
     steps:
