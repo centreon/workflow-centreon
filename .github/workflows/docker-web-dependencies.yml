@@ -14,6 +14,7 @@ on:
 
 jobs:
   set-pr-environment:
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     uses: ./.github/workflows/set-pr-environment.yml
 
   get-version:
