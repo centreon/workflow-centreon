@@ -63,6 +63,7 @@ jobs:
 
   changes:
     runs-on: ubuntu-22.04
+    needs: [set-pr-environment]
     outputs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
