@@ -28,3 +28,7 @@ jobs:
           fi
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
         shell: bash
+
+      - name: Check env secret
+        run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
+        shell: bash
