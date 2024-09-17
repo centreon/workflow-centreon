@@ -14,17 +14,20 @@ jobs:
       - name: Determine whether the contribution is internal or external
         id: set-pr-environment
         run: |
+          # By default, all pull requests are considered from external contributors
+          # (head_ref does not belong to organization repositories + a fork) + (pull_request_target)
+          # Requiring internal approvals if head does not come from centreon/centreon and pull_request_target
+          # and head is a fork
           PULL_REQUEST_ENVIRONMENT="external_contributor"
-          if [[ ("${{ github.event.pull_request.head.repo.full_name }}" == "centreon/centreon" && "${{ github.event.pull_request.head.repo.fork }}" == "false") && ("${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request') ]]
+
+          # (head_ref belongs to organization repositories + not a fork) + (any event that is not a pull_request_target)
+          # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
+          # and the head is not a fork
+          if [[ "${{ github.event.pull_request.head.repo.fork }}" == "false" && "${{ github.event_name }}" != 'pull_request_target') ]]
           then
-            # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
-            # and the head is not a fork
-            PULL_REQUEST_ENVIRONMENT="internal_contributor"
-          elif [[ ("${{ github.event.pull_request.head.repo.full_name }}" != "centreon/centreon" && "${{ github.event.pull_request.head.repo.fork }}" == "true") && ("${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request') ]]
-          then
-            # Not requiring internal approvals for push and workflow_dispatch triggers
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
           fi
+          echo "pull_request_environment set to $PULL_REQUEST_ENVIRONMENT"
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
         shell: bash
 
