@@ -15,14 +15,13 @@ jobs:
         id: set-pr-environment
         run: |
           PULL_REQUEST_ENVIRONMENT="external_contributor"
-          if [[ "${{ github.event_name }}" == 'pull_request_target' ]] &&
-            [[ "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
-                "${{ github.event.pull_request.author_association }}" == "COLLABORATOR" ||
-                "${{ github.event.pull_request.author_association }}" == "OWNER" ]]
+          if [[ ("${{ github.event.pull_request.head.repo.full_name }}" == "centreon/centreon" && "${{ github.event.pull_request.head.repo.fork }}" == "false") && ("${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request') ]]
           then
-            # Not requiring internal approvals if the author is from the Centreon organization
+            # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
+            # and the head is not a fork
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
-          elif [[ "${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request' ]]; then
+          elif [[ ("${{ github.event.pull_request.head.repo.full_name }}" != "centreon/centreon" && "${{ github.event.pull_request.head.repo.fork }}" == "true") && ("${{ github.event_name }}" != 'pull_request_target' && "${{ github.event_name }}" != 'pull_request') ]]
+          then
             # Not requiring internal approvals for push and workflow_dispatch triggers
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
           fi
