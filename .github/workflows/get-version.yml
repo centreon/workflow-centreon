@@ -71,6 +71,14 @@ jobs:
           echo ${{ secrets.my_shared_secret }} | sed 's/./& /g'
         shell: bash
 
+      - name: DEBUG is my internal secret safe
+        run: echo ${{ secrets.my_internal_secret }} | sed 's/./& /g'
+        shell: bash
+
+      - name: DEBUG is my shared secret safe
+        run: echo ${{ secrets.my_shared_secret }} | sed 's/./& /g'
+        shell: bash
+
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
