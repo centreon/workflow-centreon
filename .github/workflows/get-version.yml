@@ -65,10 +65,7 @@ jobs:
       - name: DEBUG Check env secret
         run: |
           echo "is my internal secret safe ? ${{ secrets.my_internal_secret }}"
-          echo ${{ secrets.my_internal_secret }} | sed 's/./& /g'
-
           echo "is my shared secret safe ? ${{ secrets.my_shared_secret }}"
-          echo ${{ secrets.my_shared_secret }} | sed 's/./& /g'
         shell: bash
 
       - name: DEBUG is my internal secret safe
