@@ -23,14 +23,18 @@ jobs:
           # (head_ref belongs to organization repositories + not a fork) + (any event that is not a pull_request_target)
           # Not requiring internal approvals if head comes from centreon/centreon and push & dispatch
           # and the head is not a fork
-          if [[ "${{ github.event.pull_request.head.repo.fork }}" == "false" && "${{ github.event_name }}" != 'pull_request_target') ]]
+          if [[ ("${{ github.event_name }}" != "pull_request" || "${{ github.event_name }}" != "pull_request_target")
+            && "${{ github.event.pull_request.head.repo.fork }}" == "false" ]]
+          then
+            PULL_REQUEST_ENVIRONMENT="internal_contributor"
+          elif [[ "${{ github.event_name }}" != "pull_request_target" ]]
           then
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
           fi
-          echo "pull_request_environment set to $PULL_REQUEST_ENVIRONMENT"
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
         shell: bash
 
-      - name: Check env secret
+      - name: DEBUG Check env secret
         run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
         shell: bash

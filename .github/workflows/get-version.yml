@@ -50,12 +50,16 @@ jobs:
       release_cloud: ${{ steps.get_version.outputs.release_cloud }}
 
     steps:
-      - name: Dump GitHub context
+      - name: DEBUG Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
           echo "$GITHUB_CONTEXT"
           echo "base repo name = ${{ github.event.pull_request.base.repo.name }}"
+
+      - name: DEBUG Check env secret
+        run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
+        shell: bash
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 

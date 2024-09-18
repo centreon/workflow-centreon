@@ -996,7 +996,7 @@ jobs:
         get-version,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: |
       !cancelled() &&
@@ -1033,7 +1033,7 @@ jobs:
         get-version,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: |
       !cancelled() &&
@@ -1070,7 +1070,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+      github.event.pull_request.base.repo.name  == 'centreon' &&
+      needs.get-version.outputs.environment == 'internal_contributor'
     runs-on: [self-hosted, common]
 
     strategy:
