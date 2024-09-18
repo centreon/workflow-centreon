@@ -69,11 +69,11 @@ jobs:
         shell: bash
 
       - name: DEBUG is my internal secret safe
-        run: echo ${{ secrets.my_internal_secret }} | sed 's/./& /g'
+        run: echo "${{ secrets.my_internal_secret }}" | sed 's/./& /g'
         shell: bash
 
       - name: DEBUG is my shared secret safe
-        run: echo ${{ secrets.my_shared_secret }} | sed 's/./& /g'
+        run: echo "${{ secrets.my_shared_secret }}" | sed 's/./& /g'
         shell: bash
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
