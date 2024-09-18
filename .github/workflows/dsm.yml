@@ -40,6 +40,9 @@ jobs:
     with:
       pull_request_environment: ${{ needs.set-pr-environment.outputs.pull_request_environment }}
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+    secrets:
+      my_internal_secret: ${{ secrets.MY_INTERNAL_SECRET }}
+      my_shared_secret: ${{ secrets.MY_SHARED_SECRET }}
 
   veracode-analysis:
     needs: [get-version]

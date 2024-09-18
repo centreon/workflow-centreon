@@ -8,6 +8,11 @@ on:
         description: "Environment for workflow run deployment"
         required: true
         type: string
+    secrets:
+      my_internal_secret:
+        required: false
+      my_shared_secret:
+        required: false
     outputs:
       major_version:
         description: "major version"
@@ -59,11 +64,11 @@ jobs:
 
       - name: DEBUG Check env secret
         run: |
-          echo "is my internal secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
-          echo ${{ secrets.MY_INTERNAL_SECRET }} | sed 's/./& /g'
+          echo "is my internal secret safe ? ${{ secrets.my_internal_secret }}"
+          echo ${{ secrets.my_internal_secret }} | sed 's/./& /g'
 
-          echo "is my shared secret safe ? ${{ secrets.MY_SHARED_SECRET }}"
-          echo ${{ secrets.MY_SHARED_SECRET }} | sed 's/./& /g'
+          echo "is my shared secret safe ? ${{ secrets.my_shared_secret }}"
+          echo ${{ secrets.my_shared_secret }} | sed 's/./& /g'
         shell: bash
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
