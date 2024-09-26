@@ -80,7 +80,7 @@ jobs:
         id: pull_request_environment
         run: |
           PULL_REQUEST_ENVIRONMENT="internal_contributor"
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.head.repo.fork }}" == "false" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
             PULL_REQUEST_ENVIRONMENT="external_contributor"
           fi
           echo "Pull request environment is $PULL_REQUEST_ENVIRONMENT"
