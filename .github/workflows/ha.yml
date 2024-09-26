@@ -29,14 +29,9 @@ env:
   module: ha
 
 jobs:
-  set-pr-environment:
-    uses: ./.github/workflows/set-pr-environment.yml
-
   get-version:
     uses: ./.github/workflows/get-version.yml
-    needs: [set-pr-environment]
     with:
-      pull_request_environment: ${{ needs.set-pr-environment.outputs.pull_request_environment }}
       version_file: centreon-ha/.env
 
 #   package:
