@@ -222,20 +222,21 @@ jobs:
             *)
               # Any branch name
               echo "Github repository context var: $GITHUB_REPOSITORY"
-              if [[ "${{ inputs.pull_request_environment }}" == "internal_contributor" ]]; then
+              if [[ "${{ steps.pull_request_environment.outputs.pull_request_environment }}" == "internal_contributor" ]]; then
                 echo "Internal contribution."
                 echo "release_cloud=1" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
                 # GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
                 # GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
-              elif [[ "${{ inputs.pull_request_environment }}" == "external_contributor" ]]; then
+              elif [[ "${{ steps.pull_request_environment.outputs.pull_request_environment }}" == "external_contributor" ]]; then
                 echo "External contribution."
                 echo "release_cloud=1" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
                 # CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} -q .[].number --json number)
                 # GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
               else
-                echo "Invalid value for inputs.pull_request_environment : ${{ inputs.pull_request_environment }} ."
+                echo "::error::Invalid value for pull_request_environment : ${{ steps.pull_request_environment.outputs.pull_request_environment }}."
+                exit 1
               fi
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
 
