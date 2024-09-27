@@ -235,7 +235,7 @@ jobs:
                 # CONTRIB_PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --head ${{ github.head_ref }} -q .[].number --json number)
                 # GITHUB_BRANCH_PR_STATE="$(gh pr view $CONTRIB_PR_NUMBER -q .state --json headRefName,baseRefName,state)"
               else
-                echo "::error::Invalid value for pull_request_environment : ${{ steps.pull_request_environment.outputs.pull_request_environment }}."
+                echo "::error::Invalid value for pull_request_environment: ${{ steps.pull_request_environment.outputs.pull_request_environment }}."
                 exit 1
               fi
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
