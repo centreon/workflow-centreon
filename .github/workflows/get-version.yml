@@ -55,27 +55,6 @@ jobs:
       pull_request_environment: ${{ steps.pull_request_environment.outputs.pull_request_environment }}
 
     steps:
-      - name: DEBUG Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-          echo "base repo name = ${{ github.event.pull_request.base.repo.name }}"
-
-      - name: DEBUG Check env secret
-        run: |
-          echo "is my internal secret safe ? ${{ secrets.my_internal_secret }}"
-          echo "is my shared secret safe ? ${{ secrets.my_shared_secret }}"
-        shell: bash
-
-      - name: DEBUG is my internal secret safe
-        run: echo "${{ secrets.my_internal_secret }}" | sed 's/./& /g'
-        shell: bash
-
-      - name: DEBUG is my shared secret safe
-        run: echo "${{ secrets.my_shared_secret }}" | sed 's/./& /g'
-        shell: bash
-
       - name: Get pull request environment
         id: pull_request_environment
         run: |
