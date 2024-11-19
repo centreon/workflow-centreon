@@ -1,7 +1,13 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, flatten, isNil, pluck, reject } from 'ramda';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -11,14 +17,14 @@ import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import Thresholds from '../common/Thresholds/Thresholds';
-import { Thresholds as ThresholdsModel } from '../common/models';
+import type { Thresholds as ThresholdsModel } from '../common/models';
 import {
   getUnits,
   getXScale,
   getXScaleBand,
   getYScalePerUnit
 } from '../common/timeSeries';
-import { Line } from '../common/timeSeries/models';
+import type { Line } from '../common/timeSeries/models';
 
 import Lines from './BasicComponents/Lines';
 import {
@@ -34,7 +40,12 @@ import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import { margin } from './common';
 import { thresholdTooltipAtom } from './graphAtoms';
-import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
+import type {
+  Data,
+  GlobalAreaLines,
+  GraphInterval,
+  LineChartProps
+} from './models';
 import { useIntersection } from './useChartIntersection';
 
 interface Props extends LineChartProps {
@@ -45,13 +56,24 @@ interface Props extends LineChartProps {
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
+  transformMatrix?: {
+    fx?: (pointX: number) => number;
+    fy?: (pointY: number) => number;
+  };
 }
 
-const filterLines = (lines: Array<Line>, displayThreshold): Array<Line> => {
+const filterLines = (
+  lines: Array<Line>,
+  displayThreshold: boolean
+): Array<Line> => {
   if (!displayThreshold) {
     return lines;
   }
   const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
+
+  if (isEmpty(lineOriginMetric)) {
+    return lines;
+  }
 
   const findLinesUpperLower = lines.map((line) =>
     equals(line.name, lowerLineName) || equals(line.name, upperLineName)
@@ -86,7 +108,9 @@ const Chart = ({
   },
   thresholds,
   thresholdUnit,
-  limitLegend
+  limitLegend,
+  skipIntersectionObserver,
+  transformMatrix
 }: Props): JSX.Element => {
   const { classes } = useChartStyles();
 
@@ -95,6 +119,7 @@ const Chart = ({
   const [linesGraph, setLinesGraph] = useState<Array<Line>>(
     filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
   );
+
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const [thresholdTooltip, setThresholdTooltip] = useAtom(thresholdTooltipAtom);
@@ -190,7 +215,7 @@ const Chart = ({
         filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
       );
     },
-    useDeepCompare([lines])
+    useDeepCompare([lines, shapeLines?.areaThresholdLines])
   );
 
   const graphTooltipData = useGraphTooltip({
@@ -207,7 +232,7 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport) {
+  if (!isInViewport && !skipIntersectionObserver) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
@@ -219,7 +244,7 @@ const Chart = ({
 
   return (
     <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
-      <>
+      <div className={classes.baseWrapper}>
         <BaseChart
           base={baseAxis}
           graphWidth={graphWidth}
@@ -307,6 +332,7 @@ const Chart = ({
                       graphInterval
                     }}
                     zoomData={{ ...zoomPreview }}
+                    transformMatrix={transformMatrix}
                   />
                   {thresholds?.enabled && (
                     <Thresholds
@@ -329,7 +355,7 @@ const Chart = ({
           </GraphValueTooltip>
         </BaseChart>
         {displayTooltip && <GraphTooltip {...tooltip} {...graphTooltipData} />}
-      </>
+      </div>
     </ClickAwayListener>
   );
 };

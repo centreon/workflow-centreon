@@ -1,15 +1,9 @@
-/* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
+import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
 
-import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
-import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
-import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
-import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
-import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
-import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
 import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
@@ -36,11 +30,13 @@ import {
 import { DashboardRole } from '../../api/models';
 import {
   labelAddAContact,
+  labelDashboardUpdated,
   labelDelete,
-  labelSharesSaved
+  labelSharesSaved,
+  labelUpdate
 } from '../../translatedLabels';
-
 import Dashboard from './Dashboard';
+import { internalWidgetComponents } from './Widgets/widgets';
 import { dashboardAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
@@ -62,36 +58,19 @@ import {
   labelTitle,
   labelViewProperties,
   labelWidgetType,
+  labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
-  const federatedWidgets = [
-    {
-      ...widgetTextConfiguration,
-      moduleFederationName: 'centreon-widget-text/src'
-    },
-    {
-      ...widgetInputConfiguration,
-      moduleFederationName: 'centreon-widget-input/src'
-    },
-    {
-      ...widgetGenericTextConfiguration,
-      moduleFederationName: 'centreon-widget-generictext/src'
-    },
-    {
-      ...widgetSingleMetricConfiguration,
-      moduleFederationName: 'centreon-widget-singlemetric/src'
-    }
-  ];
-
   const store = createStore();
-  store.set(federatedWidgetsAtom, federatedWidgets);
+  store.set(federatedWidgetsAtom, internalWidgetComponents);
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
     widgetGenericTextProperties,
-    widgetSingleMetricProperties
+    widgetSingleMetricProperties,
+    widgetWebpageProperties
   ]);
 
   return store;
@@ -208,10 +187,13 @@ const initializeAndMount = ({
   });
 
   cy.interceptAPIRequest({
-    alias: 'patchDashboardDetails',
-    method: Method.PATCH,
+    alias: 'updateDashboard',
+    method: Method.POST,
     path: getDashboardEndpoint('1'),
-    statusCode: 201
+    statusCode: 201,
+    response: {
+      id: 1
+    }
   });
 
   cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
@@ -251,6 +233,119 @@ const initializeAndMount = ({
 
   cy.mount({
     Component: (
+      <div style={{ height: '90vh' }}>
+        <TestQueryProvider>
+          <BrowserRouter>
+            <SnackbarProvider>
+              <Provider store={store}>
+                <Dashboard />
+              </Provider>
+            </SnackbarProvider>
+          </BrowserRouter>
+        </TestQueryProvider>
+      </div>
+    )
+  });
+
+  return {
+    blockNavigation,
+    proceedNavigation,
+    store
+  };
+};
+
+const initializeDashboardWithWebpageWidgets = ({
+  ownRole = DashboardRole.editor,
+  globalRole = DashboardGlobalRole.administrator,
+  canCreateDashboard = true,
+  canViewDashboard = true,
+  canAdministrateDashboard = true
+}: InitializeAndMountProps): void => {
+  const store = initializeWidgets();
+
+  const platformVersion = {
+    modules: {},
+    web: {
+      version: '23.04.0'
+    }
+  };
+  store.set(platformVersionsAtom, platformVersion);
+
+  store.set(userAtom, {
+    alias: 'admin',
+    dashboard: {
+      createDashboards: canCreateDashboard,
+      globalUserRole: globalRole,
+      manageAllDashboards: canAdministrateDashboard,
+      viewDashboards: canViewDashboard
+    },
+    isExportButtonEnabled: true,
+    locale: 'en',
+    name: 'admin',
+    timezone: 'Europe/Paris',
+    use_deprecated_pages: false,
+    user_interface_density: ListingVariant.compact
+  });
+  store.set(refreshIntervalAtom, 15);
+  store.set(additionalResourcesAtom, [
+    {
+      baseEndpoint: '/ba',
+      label: 'BA',
+      resourceType: 'business-activity'
+    }
+  ]);
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
+
+  cy.viewport('macbook-13');
+
+  cy.fixture('Dashboards/Dashboard/detailsWithWebPageWidget.json').then(
+    (dashboardDetails) => {
+      cy.interceptAPIRequest({
+        alias: 'getDashboardDetails',
+        method: Method.GET,
+        path: getDashboardEndpoint('1'),
+        response: {
+          ...dashboardDetails,
+          own_role: ownRole
+        }
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboards',
+      method: Method.GET,
+      path: `${dashboardsEndpoint}?**`,
+      response: dashboards
+    });
+  });
+
+  cy.fixture('Dashboards/contacts.json').then((response) => {
+    cy.interceptAPIRequest({
+      alias: 'getContacts',
+      method: Method.GET,
+      path: `./api/latest${dashboardsContactsEndpoint}?**`,
+      response
+    });
+  });
+
+  const proceedNavigation = cy.stub();
+  const blockNavigation = cy.stub();
+
+  cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
+  cy.stub(saveBlockerHooks, 'useBlocker').returns({
+    proceed: proceedNavigation,
+    reset: blockNavigation,
+    state: 'unblocked'
+  });
+
+  cy.mount({
+    Component: (
       <TestQueryProvider>
         <BrowserRouter>
           <SnackbarProvider>
@@ -262,12 +357,6 @@ const initializeAndMount = ({
       </TestQueryProvider>
     )
   });
-
-  return {
-    blockNavigation,
-    proceedNavigation,
-    store
-  };
 };
 
 describe('Dashboard', () => {
@@ -491,6 +580,36 @@ describe('Dashboard', () => {
       cy.contains(labelManualRefreshOnly).should('be.visible');
 
       cy.findByLabelText(labelInterval).should('have.value', '15');
+
+      cy.makeSnapshot();
+    });
+
+    it('edits the dashboards when the refresh type and refresh are updated and the save button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText('edit').click();
+
+      cy.contains(labelGlobalRefreshInterval).should('be.visible');
+      cy.contains(labelManualRefreshOnly).should('be.visible');
+
+      cy.findByLabelText(labelInterval).type('15');
+      cy.contains(labelManualRefreshOnly).click();
+      cy.findByLabelText(labelUpdate).click();
+
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        expect(request.body).to.deep.equal({
+          name: 'My Dashboard',
+          description: 'my description',
+          'refresh[type]': 'manual',
+          'refresh[interval]': '1515'
+        });
+      });
+
+      cy.contains(labelDashboardUpdated).should('be.visible');
+
+      cy.makeSnapshot();
     });
   });
 
@@ -544,9 +663,34 @@ describe('Dashboard', () => {
     cy.makeSnapshot();
   });
 
+  it('saves an empty dashbord when widgets are removed and the save button is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findByLabelText(labelMoreActions).click();
+    cy.contains(labelDeleteWidget).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@updateDashboard').then(({ request }) => {
+      expect(request.body['panels[]']).equal('');
+      expect(request.body['thumbnail[directory]']).equal('dashboards');
+      expect(request.body['thumbnail[name]']).equal('dashboard-1.png');
+    });
+
+    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   describe('Route blocking', () => {
     it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
-      const { proceedNavigation } = initializeAndMount({
+      initializeAndMount({
         ...editorRoles,
         isBlocked: true
       });
@@ -561,8 +705,18 @@ describe('Dashboard', () => {
 
       cy.findByTestId('confirm').click();
 
-      cy.waitForRequest('@patchDashboardDetails').then(() => {
-        expect(proceedNavigation).to.have.been.calledWith();
+      cy.waitForRequest('@updateDashboard').then(({ request }) => {
+        const formData = new URLSearchParams(request.body);
+
+        const formDataObj = {};
+        formData.forEach((value, key) => {
+          formDataObj[key] = value;
+        });
+
+        expect(formDataObj).to.include({
+          'thumbnail[directory]': 'dashboards',
+          'thumbnail[name]': 'dashboard-1.png'
+        });
       });
 
       cy.makeSnapshot();
@@ -644,6 +798,30 @@ describe('Dashboard', () => {
         .eq(0)
         .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Web Page widget', () => {
+    beforeEach(() => initializeDashboardWithWebpageWidgets({}));
+
+    it('renders Web Page widgets', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+    });
+
+    it('renders iframes with correct source URL', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+      cy.findAllByTestId('Webpage Display')
+        .eq(0)
+        .should('have.attr', 'src', 'https://docs.centreon.com/fr/');
+      cy.findAllByTestId('Webpage Display')
+        .eq(1)
+        .should('have.attr', 'src', 'https://react.dev/');
+    });
+
+    it('displays widget refresh buttons', () => {
+      cy.findAllByTestId('Webpage Display').should('have.length', 2);
+
+      cy.findAllByTestId('UpdateIcon').should('have.length', 2);
     });
   });
 });

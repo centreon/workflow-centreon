@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 
 export enum ListingVariant {
   compact = 'compact',
@@ -87,8 +87,8 @@ export interface Downtime {
 export interface FeatureFlags {
   adExclusionPeriods?: boolean;
   notification?: boolean;
-  resouresTableOpenTickets: boolean;
   vault?: boolean;
+  mapVisxViewer?: boolean;
 }
 
 export interface PlatformFeatures {
