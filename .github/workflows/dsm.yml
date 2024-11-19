@@ -60,6 +60,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-22.04
+    # test do remove
+    if: github.event.pull_request.base.repo.name  == 'centreon'
     needs: [get-version]
 
     steps:
@@ -146,10 +148,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: |
-      contains(fromJson('["stable"]'), needs.get-version.outputs.stability) &&
-      github.event_name != 'workflow_dispatch' &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch'}}
 
     steps:
       - name: Checkout sources
@@ -167,9 +166,7 @@ jobs:
 
   deliver-rpm:
     needs: [get-version, package]
-    if: |
-      contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -195,9 +192,7 @@ jobs:
 
   deliver-deb:
     needs: [get-version, package]
-    if: |
-      contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) &&
-      github.event.pull_request.base.repo.name  == 'centreon'
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
