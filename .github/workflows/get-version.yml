@@ -92,7 +92,7 @@ jobs:
 
       - id: get_version
         run: |
-          echo "${{ github.event_name }}"
+          set -x
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
             . ${{ inputs.version_file }}

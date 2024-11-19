@@ -9,8 +9,8 @@ on:
   pull_request:
     paths:
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
-  schedule:
-    - cron: '0 2 * * *'
+  # schedule:
+  #   - cron: '0 2 * * *'
 
 jobs:
   get-version:
