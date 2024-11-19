@@ -23,17 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotification;
 
-use Core\Notification\Domain\Model\HostEvent;
+use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ServiceEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 /**
  * @phpstan-type _Resource array{
- *     type: NotificationResource::TYPE_*,
- *     events: ServiceEvent[]|HostEvent[],
+ *     type: NotificationResource::*_RESOURCE_TYPE,
+ *     events: array<NotificationServiceEvent>|array<NotificationHostEvent>,
  *     ids: array<array{id: int, name: string}>,
  *     extra?: array{
- *         event_services: ServiceEvent[]
+ *         event_services: NotificationServiceEvent[]
  *     }
  * }
  */

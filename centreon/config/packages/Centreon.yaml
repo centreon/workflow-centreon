@@ -46,7 +46,6 @@ services:
             - '../../src/Core/Broker/*'
             - '../../src/Core/AdditionalConnectorConfiguration/*'
             - '../../src/Core/Security/Vault/*'
-            - '../../src/Core/Contact/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 

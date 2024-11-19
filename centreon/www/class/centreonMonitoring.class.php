@@ -33,8 +33,6 @@
  *
  */
 
-use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
-
 /**
  *
  * Enter description here ...
@@ -43,13 +41,6 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
  */
 class CentreonMonitoring
 {
-    use SqlMultipleBindTrait;
-    public const SERVICE_STATUS_OK = 0;
-    public const SERVICE_STATUS_WARNING = 1;
-    public const SERVICE_STATUS_CRITICAL = 2;
-    public const SERVICE_STATUS_UNKNOWN = 3;
-    public const SERVICE_STATUS_PENDING = 4;
-
     protected $poller;
     protected $DB;
     protected $objBroker;
@@ -85,92 +76,61 @@ class CentreonMonitoring
     /**
      *
      * Proxy function
-     *
-     * @param string $hostName
-     * @param CentreonXMLBGRequest $centreonXMLBGRequest
-     * @param string $o
-     * @param int $serviceStatus
-     *
-     * @throws CentreonDbException
-     * @return int
+     * @param unknown_type $hostList
+     * @param unknown_type $objXMLBG
+     * @param unknown_type $o
+     * @param unknown_type $instance
+     * @param unknown_type $hostgroups
      */
-    public function getServiceStatusCount(
-        string $hostName,
-        CentreonXMLBGRequest $centreonXMLBGRequest,
-        string $o,
-        int $serviceStatus
-    ): int {
-        $toBind = [':service_status' => $serviceStatus, ':host_name' => $hostName];
-        if ($centreonXMLBGRequest->is_admin) {
-            $query = <<<SQL
-                SELECT count(distinct s.service_id) as count, 1 AS REALTIME
-                FROM services s
-                INNER JOIN hosts h
-                    ON h.host_id = s.host_id
-                WHERE s.state = :service_status
-                    AND s.host_id = h.host_id
-                    AND s.enabled = '1'
-                    AND h.enabled = '1'
-                    AND h.name = :host_name
-                SQL;
-        } else {
-            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups();
-            [$bindValues, $subRequest] = $this->createMultipleBindQuery(array_keys($accessGroups), ':grp_');
-            $query = <<<SQL
-                SELECT count(distinct s.service_id) as count, 1 AS REALTIME
-                FROM services s
-                INNER JOIN hosts h
-                    ON h.host_id = s.host_id
-                INNER JOIN centreon_acl acl
-                    ON acl.host_id = h.host_id
-                    AND acl.service_id = s.service_id
-                WHERE s.state = :service_status
-                    AND s.host_id = h.host_id
-                    AND s.enabled = '1'
-                    AND h.enabled = '1'
-                    AND h.name = :host_name
-                    AND acl.group_id IN ({$subRequest})
-                SQL;
-            $toBind = [...$toBind, ...$bindValues];
+    public function getServiceStatusCount($host_name, $objXMLBG, $o, $status, $obj)
+    {
+            $rq = "SELECT count(distinct s.service_id) as count, 1 AS REALTIME "
+                . "FROM services s, hosts h " . (!$objXMLBG->is_admin ? ", centreon_acl " : "")
+                . "WHERE s.state = '" . $status . "' "
+                . "AND s.host_id = h.host_id "
+                . "AND s.enabled = '1' "
+                . "AND h.enabled = '1' "
+                . "AND h.name = '" . $host_name . "' ";
+
+            # Acknowledgement filter
+        if ($o == "svcSum_ack_0") {
+            $rq .= "AND s.acknowledged = 0 AND s.state != 0 ";
+        } elseif ($o == "svcSum_ack_1") {
+            $rq .= "AND s.acknowledged = 1 AND s.state != 0 ";
         }
 
-        # Acknowledgement filter
-        if ($o === 'svcSum_ack_0') {
-            $query .= ' AND s.acknowledged = 0 AND s.state != 0 ';
-        } elseif ($o === "svcSum_ack_1") {
-            $query .= ' AND s.acknowledged = 1 AND s.state != 0 ';
-        }
-        $statement = $centreonXMLBGRequest->DBC->prepare($query);
-        $centreonXMLBGRequest->DBC->executePreparedQuery($statement, $toBind);
-
-        if (($count = $centreonXMLBGRequest->DBC->fetchColumn($statement)) !== false) {
-            return (int) $count;
+        if (!$objXMLBG->is_admin) {
+            $rq .=  "AND h.host_id = centreon_acl.host_id "
+                . "AND s.service_id = centreon_acl.service_id "
+                . "AND centreon_acl.group_id IN (" .  $obj->access->getAccessGroupsString() . ") ";
         }
 
-        return 0;
+            $DBRESULT = $objXMLBG->DBC->query($rq);
+
+            $cpt = 0;
+        if ($DBRESULT->rowCount()) {
+            $row = $DBRESULT->fetchRow();
+            $cpt = $row['count'];
+        }
+            $DBRESULT->closeCursor();
+
+            return $cpt;
     }
 
     /**
-     * @param int[] $hostIds
-     * @param CentreonXMLBGRequest $centreonXMLBGRequest
+     * @param string $hostList
+     * @param CentreonXMLBGRequest $objXMLBG
      * @param string $o
-     * @param int $monitoringServerId
-     *
-     * @throws CentreonDbException
-     * @return array<string, array<string, array{state: int, service_id: int}>>
+     * @param false|int $instance
+     * @param false|int $hostgroups
      */
-    public function getServiceStatus(
-        array $hostIds,
-        CentreonXMLBGRequest $centreonXMLBGRequest,
-        string $o,
-        int $monitoringServerId,
-    ): array {
-        if ($hostIds === []) {
+    public function getServiceStatus($hostList, $objXMLBG, $o, $instance, $hostgroups)
+    {
+        if ($hostList === '') {
             return [];
         }
-        [$hostIdsToBind, $hostNamesSubQuery] = $this->createMultipleBindQuery($hostIds, ':host_id_');
-        $toBind = $hostIdsToBind;
-        $query = <<<SQL
+
+        $rq = <<<SQL
             SELECT
                 1 AS REALTIME,
                 h.name, s.description AS service_name, s.state, s.service_id,
@@ -185,19 +145,17 @@ class CentreonMonitoring
                 ON s.host_id = h.host_id
             SQL;
 
-        if (! $centreonXMLBGRequest->is_admin) {
-            $accessGroups = $centreonXMLBGRequest->access->getAccessGroups();
-            [$bindValues, $accessGroupsSubQuery] = $this->createMultipleBindQuery(array_keys($accessGroups), ':grp_');
-            $toBind = [...$toBind, ...$bindValues];
-            $query .= <<<SQL
+        if (!$objXMLBG->is_admin) {
+            $grouplistStr = $objXMLBG->access->getAccessGroupsString();
+            $rq .= <<<SQL
                 
                 INNER JOIN centreon_acl
                     ON centreon_acl.host_id = h.host_id
                     AND centreon_acl.service_id = s.service_id
-                    AND centreon_acl.group_id IN ({$accessGroupsSubQuery})
+                    AND centreon_acl.group_id IN ({$grouplistStr})
                 SQL;
         }
-        $query .= <<<SQL
+        $rq .= <<<SQL
 
             WHERE s.enabled = '1'
                 AND h.enabled = '1'
@@ -205,38 +163,35 @@ class CentreonMonitoring
             SQL;
 
         if ($o === "svcgrid_pb" || $o === "svcOV_pb") {
-            $query .= " AND s.state != 0 ";
+            $rq .= " AND s.state != 0 ";
         } elseif ($o === "svcgrid_ack_0" || $o === "svcOV_ack_0") {
-            $query .= " AND s.acknowledged = 0 AND s.state != 0 ";
+            $rq .= " AND s.acknowledged = 0 AND s.state != 0 ";
         } elseif ($o === "svcgrid_ack_1" || $o === "svcOV_ack_1") {
-            $query .= " AND s.acknowledged = 1 ";
+            $rq .= " AND s.acknowledged = 1 ";
         }
 
-        $query .= " AND h.host_id IN ({$hostNamesSubQuery}) ";
+        $rq .= " AND h.name IN (" . $hostList . ") ";
 
         # Instance filter
-        if ($monitoringServerId !== -1) {
-            $query .=  " AND h.instance_id = :monitoring_server_id";
-            $toBind[':monitoring_server_id'] = $monitoringServerId;
+        if ($instance !== -1) {
+            $rq .=  " AND h.instance_id = " . $instance . " ";
         }
 
-        $query .= " ORDER BY tri ASC, service_name";
+        $rq .= " ORDER BY tri ASC, service_name";
 
-        $serviceDetails = [];
-        $statement = $centreonXMLBGRequest->DBC->prepare($query);
-        $centreonXMLBGRequest->DBC->executePreparedQuery($statement, $toBind);
-
-        while ($result = $centreonXMLBGRequest->DBC->fetch($statement)) {
-            if (! isset($serviceDetails[$result["name"]])) {
-                $serviceDetails[$result["name"]] = [];
+        $tab = [];
+        $DBRESULT = $objXMLBG->DBC->query($rq);
+        while ($svc = $DBRESULT->fetchRow()) {
+            if (!isset($tab[$svc["name"]])) {
+                $tab[$svc["name"]] = [];
             }
-            $serviceDetails[$result["name"]][$result["service_name"]] = [
-                'state' => $result["state"],
-                'service_id' => $result['service_id']
+            $tab[$svc["name"]][$svc["service_name"]] = [
+                'state' => $svc["state"],
+                'service_id' => $svc['service_id']
             ];
         }
-        $centreonXMLBGRequest->DBC->closeQuery($statement);
+        $DBRESULT->closeCursor();
 
-        return $serviceDetails;
+        return $tab;
     }
 }

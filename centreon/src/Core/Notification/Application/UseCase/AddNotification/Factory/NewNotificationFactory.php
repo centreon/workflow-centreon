@@ -27,14 +27,14 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\NewNotification;
-use Core\Notification\Domain\Model\TimePeriod;
 
 class NewNotificationFactory
 {
     use LoggerTrait;
 
-    public function __construct(private readonly ReadNotificationRepositoryInterface $notificationRepository)
+    public function __construct(private ReadNotificationRepositoryInterface $notificationRepository)
     {
     }
 
@@ -43,21 +43,20 @@ class NewNotificationFactory
      *
      * @param string $name
      * @param bool $isActivated
-     * @param int $timePeriodId
+     * @param int $timeperiodId
      *
      * @throws NotificationException
      * @throws \Assert\AssertionFailedException
-     * @throws \Throwable
      *
      * @return NewNotification
      */
-    public function create(string $name, bool $isActivated, int $timePeriodId): NewNotification
+    public function create(string $name, bool $isActivated, int $timeperiodId): NewNotification
     {
         $this->assertNameDoesNotAlreadyExists($name);
 
         return new NewNotification(
             $name,
-            new TimePeriod($timePeriodId, ''),
+            new ConfigurationTimePeriod($timeperiodId, ''),
             $isActivated
         );
     }
@@ -68,7 +67,6 @@ class NewNotificationFactory
      * @param string $name
      *
      * @throws NotificationException
-     * @throws \Throwable
      */
     private function assertNameDoesNotAlreadyExists(string $name): void
     {

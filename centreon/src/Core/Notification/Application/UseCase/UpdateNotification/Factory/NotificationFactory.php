@@ -23,16 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\UpdateNotification\Factory;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\TimePeriod;
 
-class NotificationFactory
+final class NotificationFactory
 {
     use LoggerTrait;
 
@@ -46,7 +45,6 @@ class NotificationFactory
      * @param UpdateNotificationRequest $request
      *
      * @throws NotificationException
-     * @throws AssertionFailedException
      *
      * @return Notification
      */
@@ -57,7 +55,7 @@ class NotificationFactory
         return new Notification(
             $request->id,
             $request->name,
-            new TimePeriod($request->timePeriodId, ''),
+            new ConfigurationTimePeriod($request->timeperiodId, ''),
             $request->isActivated
         );
     }

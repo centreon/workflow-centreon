@@ -26,6 +26,7 @@ namespace Core\Notification\Application\UseCase\UpdateNotification;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -33,6 +34,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -43,8 +45,8 @@ use Core\Notification\Application\UseCase\UpdateNotification\Factory\Notificatio
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Validator\NotificationValidator;
-use Core\Notification\Domain\Model\Message;
 use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -56,11 +58,10 @@ final class UpdateNotification
         private readonly ReadNotificationRepositoryInterface $readNotificationRepository,
         private readonly WriteNotificationRepositoryInterface $writeNotificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly NotificationValidator $notificationValidator,
-        private readonly NotificationFactory $notificationFactory,
-        private readonly NotificationResourceFactory $notificationResourceFactory,
         private readonly ContactInterface $user,
     ) {
     }
@@ -84,25 +85,43 @@ final class UpdateNotification
                 return;
             }
 
-            $notification = $this->notificationFactory->create($request);
+            $notificationFactory = new NotificationFactory($this->readNotificationRepository);
+            $notification = $notificationFactory->create($request);
             $messages = NotificationMessageFactory::createMultipleMessage($request->messages);
 
-            $resources = $this->notificationResourceFactory->createMultipleResource($request->resources);
+            $notificationResourceFactory = new NotificationResourceFactory(
+                $this->resourceRepositoryProvider,
+                $this->readAccessGroupRepository,
+                $this->user
+            );
+            $resources = $notificationResourceFactory->createMultipleResource($request->resources);
 
-            $this->notificationValidator->validateUsersAndContactGroups(
+            $validator = new NotificationValidator();
+            $validator->validateUsersAndContactGroups(
                 $request->users,
                 $request->contactGroups,
+                $this->contactRepository,
+                $this->contactGroupRepository,
                 $this->user
             );
 
-            $this->updateNotificationConfiguration(
-                $notification,
-                $messages,
-                $request->users,
-                $request->contactGroups,
-                $resources
-            );
-            $presenter->presentResponse(new NoContentResponse());
+            try {
+                $this->dataStorageEngine->startTransaction();
+                $this->updateNotificationConfiguration(
+                    $notification,
+                    $messages,
+                    $request->users,
+                    $request->contactGroups,
+                    $resources
+                );
+                $this->dataStorageEngine->commitTransaction();
+                $presenter->presentResponse(new NoContentResponse());
+            } catch (\Throwable $ex) {
+                $this->error("Rollback of 'Update Notification' transaction.");
+                $this->dataStorageEngine->rollbackTransaction();
+
+                throw $ex;
+            }
         } catch (NotificationException|AssertionFailedException|\ValueError $ex) {
             $this->error('Unable to update notification configuration', ['trace' => (string) $ex]);
             $presenter->presentResponse(
@@ -117,8 +136,10 @@ final class UpdateNotification
     }
 
     /**
+     * Ordonate the modification of notification configuration.
+     *
      * @param Notification $notification
-     * @param Message[] $messages
+     * @param NotificationMessage[] $messages
      * @param int[] $users
      * @param int[] $contactGroups
      * @param NotificationResource[] $resources
@@ -132,24 +153,13 @@ final class UpdateNotification
         array $contactGroups,
         array $resources
     ): void {
-        try {
-            $this->dataStorageEngine->startTransaction();
-
-            $this->writeNotificationRepository->updateNotification($notification);
-            $this->writeNotificationRepository->deleteNotificationMessages($notification->getId());
-            $this->writeNotificationRepository->addMessagesToNotification($notification->getId(), $messages);
-            $this->writeNotificationRepository->deleteUsersFromNotification($notification->getId());
-            $this->writeNotificationRepository->addUsersToNotification($notification->getId(), $users);
-            $this->updateResources($notification->getId(), $resources);
-            $this->updateContactGroups($notification->getId(), $contactGroups);
-
-            $this->dataStorageEngine->commitTransaction();
-        } catch (\Throwable $ex) {
-            $this->error("Rollback of 'Update Notification' transaction.");
-            $this->dataStorageEngine->rollbackTransaction();
-
-            throw $ex;
-        }
+        $this->writeNotificationRepository->update($notification);
+        $this->writeNotificationRepository->deleteMessages($notification->getId());
+        $this->writeNotificationRepository->addMessages($notification->getId(), $messages);
+        $this->writeNotificationRepository->deleteUsers($notification->getId());
+        $this->writeNotificationRepository->addUsers($notification->getId(), $users);
+        $this->updateResources($notification->getId(), $resources);
+        $this->updateContactGroups($notification->getId(), $contactGroups);
     }
 
     /**
@@ -187,9 +197,9 @@ final class UpdateNotification
         if (! $this->user->isAdmin()) {
             $this->deleteContactGroupsForUserWithACL($notificationId);
         } else {
-            $this->writeNotificationRepository->deleteContactGroupsFromNotification($notificationId);
+            $this->writeNotificationRepository->deleteContactGroups($notificationId);
         }
-        $this->writeNotificationRepository->addContactGroupsToNotification($notificationId, $contactGroups);
+        $this->writeNotificationRepository->addContactGroups($notificationId, $contactGroups);
     }
 
     /**
@@ -224,11 +234,9 @@ final class UpdateNotification
      */
     private function deleteContactGroupsForUserWithACL(int $notificationId): void
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $contactGroups = $this->readNotificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
+        $contactGroups = $this->readNotificationRepository->findContactGroupsByNotificationIdAndUserId(
             $notificationId,
-            $this->user,
-            $accessGroups
+            $this->user->getId()
         );
         if (! empty($contactGroups)) {
             $contactGroupsIds = array_map(

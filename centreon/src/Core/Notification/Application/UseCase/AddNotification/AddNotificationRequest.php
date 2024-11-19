@@ -27,7 +27,7 @@ final class AddNotificationRequest
 {
     public string $name = '';
 
-    public int $timePeriodId = 0;
+    public int $timeperiodId;
 
     /** @var int[] */
     public array $users = [];

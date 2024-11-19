@@ -29,7 +29,7 @@ final class UpdateNotificationRequest
 
     public string $name = '';
 
-    public int $timePeriodId = 0;
+    public int $timeperiodId = 1;
 
     /**
      * User IDs.

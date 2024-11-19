@@ -1,7 +1,7 @@
-import type { MutableRefObject } from 'react';
+import { MutableRefObject } from 'react';
 
 import { Event } from '@visx/visx';
-import type { ScaleLinear, ScaleTime } from 'd3-scale';
+import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import {
   all,
@@ -28,9 +28,9 @@ import {
   getTimeValue,
   getYScale
 } from '../../common/timeSeries';
-import type { Line, TimeValue } from '../../common/timeSeries/models';
+import { Line, TimeValue } from '../../common/timeSeries/models';
 import { margin } from '../common';
-import type {
+import {
   AnnotationEvent,
   GraphInterval,
   InteractedZone,
@@ -38,12 +38,12 @@ import type {
 } from '../models';
 
 import Annotations from './Annotations';
-import type { TimelineEvent } from './Annotations/models';
+import { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
 import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
 import {
-  type MousePosition,
+  MousePosition,
   changeMousePositionDerivedAtom,
   eventMouseDownAtom,
   eventMouseLeaveAtom,
@@ -91,6 +91,7 @@ const InteractionWithGraph = ({
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
   const changeMousePosition = useSetAtom(changeMousePositionDerivedAtom);
   const setGraphTooltipData = useSetAtom(graphTooltipDataAtom);
+
   const {
     graphHeight,
     graphWidth,
@@ -245,7 +246,7 @@ const InteractionWithGraph = ({
       {displayEventAnnotations && (
         <Annotations
           data={annotationData?.data as Array<TimelineEvent>}
-          graphHeight={graphHeight - margin.bottom}
+          graphHeight={graphHeight}
           graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
           xScale={xScale}

@@ -1,18 +1,18 @@
 import { equals, isNil } from 'ramda';
 
-import type { TimeValue } from '../../../../common/timeSeries/models';
+import { TimeValue } from '../../../../common/timeSeries/models';
 import { displayArea } from '../../../helpers/index';
 import {
-  type PatternThreshold,
+  PatternThreshold,
   ThresholdType,
-  type VariationThreshold
+  VariationThreshold
 } from '../../../models';
 
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';
 import ThresholdWithPatternLines from './ThresholdWithPatternLines';
 import ThresholdWithVariation from './ThresholdWithVariation';
-import type { WrapperThresholdLinesModel } from './models';
+import { WrapperThresholdLinesModel } from './models';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {
@@ -52,14 +52,14 @@ const WrapperThresholdLines = ({
     timeSeries
   };
 
-  const thresholdLines = areaThresholdLines?.map((item) => {
+  const thresholdLines = areaThresholdLines?.map((item, index) => {
     const { type, id } = item;
 
     if (equals(type, ThresholdType.basic)) {
       return [
         {
           Component: BasicThreshold,
-          key: id,
+          key: index,
           props: { ...commonProps, getY0, getY1, id }
         }
       ];
@@ -73,7 +73,7 @@ const WrapperThresholdLines = ({
       return [
         {
           Component: ThresholdWithVariation,
-          key: dataVariation.id,
+          key: index,
           props: {
             factors: dataVariation.factors,
             ...commonProps,
@@ -101,13 +101,13 @@ const WrapperThresholdLines = ({
 
       const { data: pattern } = dataPattern;
 
-      return pattern.map((element, index) => ({
+      return pattern.map((element, ind) => ({
         Component: ThresholdWithPatternLines,
-        key: index,
+        key: ind,
         props: {
           data: element,
           graphHeight,
-          key: index,
+          key: ind,
           orientation: dataPattern?.orientation,
           xScale,
           yScalesPerUnit

@@ -24,82 +24,66 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\UpdateNotification\Validator;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
-use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 class NotificationValidator
 {
     use LoggerTrait;
 
-    private ContactInterface $currentContact;
-
-    public function __construct(
-        private readonly ReadContactRepositoryInterface $contactRepository,
-        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-    ) {
-    }
-
     /**
      * Validate that provided user and contactgroup ids exists.
      *
      * @param int[] $userIds
      * @param int[] $contactGroupsIds
-     * @param ContactInterface $currentContact
+     * @param ContactRepositoryInterface $contactRepository
+     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ContactInterface $user
      *
      * @throws \Throwable|NotificationException
      */
     public function validateUsersAndContactGroups(
         array $userIds,
         array $contactGroupsIds,
-        ContactInterface $currentContact
+        ContactRepositoryInterface $contactRepository,
+        ReadContactGroupRepositoryInterface $contactGroupRepository,
+        ContactInterface $user
     ): void {
         if (empty($userIds) && empty($contactGroupsIds)) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
         }
-        $this->currentContact = $currentContact;
         if (! empty($userIds)) {
-            $this->validateUsers($userIds);
+            $this->validateUsers($userIds, $contactRepository);
         }
         if (! empty($contactGroupsIds)) {
-            $this->validateContactGroups($contactGroupsIds);
+            $this->validateContactGroups($contactGroupsIds, $contactGroupRepository, $user);
         }
     }
 
     /**
      * Validate that provided user ids exists.
      *
-     * @param int[] $contactIdsToValidate
+     * @param int[] $userIds
+     * @param ContactRepositoryInterface $contactRepository
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateUsers(array $contactIdsToValidate): void
+    private function validateUsers(array $userIds, ContactRepositoryInterface $contactRepository): void
     {
-        $contactIdsToValidate = array_unique($contactIdsToValidate);
+        $userIds = array_unique($userIds);
 
-        if ($this->currentContact->isAdmin()) {
-            $existingContactIds = $this->contactRepository->retrieveExistingContactIds($contactIdsToValidate);
-        } else {
-            $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $existingContacts = $this->contactRepository->findByAccessGroupsAndUserAndRequestParameters(
-                $accessGroups,
-                $this->currentContact
-            );
-            $existingContactIds = array_map(fn (BasicContact $contact) => $contact->getId(), $existingContacts);
-        }
-        $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
-        $missingContact = $contactDifference->getRemoved();
+        $existingUsers = $contactRepository->exist($userIds);
+        $difference = new BasicDifference($userIds, $existingUsers);
+        $missingUsers = $difference->getRemoved();
 
-        if ([] !== $missingContact) {
+        if ([] !== $missingUsers) {
             $this->error(
                 'Invalid ID(s) provided',
-                ['propertyName' => 'users', 'propertyValues' => array_values($missingContact)]
+                ['propertyName' => 'users', 'propertyValues' => array_values($missingUsers)]
             );
 
             throw NotificationException::invalidId('users');
@@ -108,25 +92,27 @@ class NotificationValidator
     }
 
     /**
-     * Validate that provided contact group ids exists.
+     * Validate that provided contactgroup ids exists.
      *
      * @param int[] $contactGroupIds
+     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ContactInterface $user
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(array $contactGroupIds):void {
+    private function validateContactGroups(
+        array $contactGroupIds,
+        ReadContactGroupRepositoryInterface $contactGroupRepository,
+        ContactInterface $user
+    ):void {
         $contactGroupIds = array_unique($contactGroupIds);
 
-        if ($this->currentContact->isAdmin()) {
-            $contactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
+        if ($user->isAdmin()) {
+            $contactGroups = $contactGroupRepository->findByIds($contactGroupIds);
         } else {
-            $accessGroups = $this->accessGroupRepository->findByContact($this->currentContact);
-            $contactGroups = $this->contactGroupRepository->findByAccessGroupsAndUserAndRequestParameter(
-                $accessGroups,
-                $this->currentContact
-            );
+            $contactGroups = $contactGroupRepository->findByIdsAndUserId($contactGroupIds, $user->getId());
         }
-        $existingContactGroups = array_map(fn (ContactGroup $contactGroup) => $contactGroup->getId(), $contactGroups);
+        $existingContactGroups = array_map(fn (ContactGroup $contactgroup) => $contactgroup->getId(), $contactGroups);
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
         $missingContactGroups = $difference->getRemoved();
 

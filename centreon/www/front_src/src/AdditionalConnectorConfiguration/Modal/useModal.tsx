@@ -69,7 +69,6 @@ const useAdditionalConnectorModal = (): UseConnectorConfig => {
     onSuccess: () => {
       showSuccessMessage(t(requestData.labelOnSuccess));
       queryClient.invalidateQueries({ queryKey: ['listConnectors'] });
-      queryClient.resetQueries({ queryKey: ['getOnACC'] });
     }
   });
 

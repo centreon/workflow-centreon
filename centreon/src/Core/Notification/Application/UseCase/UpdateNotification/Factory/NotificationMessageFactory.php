@@ -24,15 +24,15 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\UpdateNotification\Factory;
 
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Domain\Model\Channel;
-use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\NotificationMessage;
 
 class NotificationMessageFactory
 {
     /**
      * Create a NotificationMessage.
      *
-     * @param Channel $messageType
+     * @param NotificationChannel $messageType
      * @param array{
      *     channel: string,
      *     subject: string,
@@ -42,11 +42,11 @@ class NotificationMessageFactory
      *
      * @throws \Assert\AssertionFailedException
      *
-     * @return Message
+     * @return NotificationMessage
      */
-    public static function create(Channel $messageType, array $message): Message
+    public static function create(NotificationChannel $messageType, array $message): NotificationMessage
     {
-        return new Message(
+        return new NotificationMessage(
             $messageType,
             $message['subject'],
             $message['message'],
@@ -66,7 +66,7 @@ class NotificationMessageFactory
      *
      * @throws \Assert\AssertionFailedException
      *
-     * @return Message[]
+     * @return NotificationMessage[]
      */
     public static function createMultipleMessage(array $messages): array
     {
@@ -76,7 +76,7 @@ class NotificationMessageFactory
 
         $newMessages = [];
         foreach ($messages as $message) {
-            $messageType = Channel::from($message['channel']);
+            $messageType = NotificationChannel::from($message['channel']);
             // If multiple message with same type are defined, only the last one of each type is kept
             $newMessages[$messageType->value] = self::create($messageType, $message);
         }

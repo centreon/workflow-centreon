@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifications;
 
-use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\NotificationChannel;
 
 class NotificationDto
 {
@@ -35,7 +35,7 @@ class NotificationDto
 
     public bool $isActivated = true;
 
-    /** @var Channel[] */
+    /** @var NotificationChannel[] */
     public array $notificationChannels = [];
 
     /**

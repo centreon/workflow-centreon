@@ -83,8 +83,6 @@ final class UpdateNotificationController extends AbstractController
      *
      * @param int $notificationId
      * @param _RequestArray $dataSent
-     *
-     * @return UpdateNotificationRequest
      */
     public function createUpdateNotificationRequest(int $notificationId, array $dataSent): UpdateNotificationRequest
     {
@@ -110,7 +108,7 @@ final class UpdateNotificationController extends AbstractController
                     ?? 0,
             ];
         }
-        $request->timePeriodId = $dataSent['timeperiod_id'];
+        $request->timeperiodId = $dataSent['timeperiod_id'];
         $request->isActivated = $dataSent['is_activated'] ?? true;
 
         return $request;

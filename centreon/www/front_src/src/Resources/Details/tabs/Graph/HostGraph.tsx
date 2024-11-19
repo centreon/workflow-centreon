@@ -1,32 +1,28 @@
 import { useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 
 import type { ListingModel } from '@centreon/ui';
 import { TimePeriods, useRequest } from '@centreon/ui';
 
-import type { TabProps } from '..';
+import { TabProps } from '..';
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
+import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
 import { listResources } from '../../../Listing/api';
-import type { Resource } from '../../../models';
+import { Resource } from '../../../models';
 import InfiniteScroll from '../../InfiniteScroll';
 import ServiceGraphs from '../Services/Graphs';
 import LoadingSkeleton from '../Timeline/LoadingSkeleton';
-import { updatedGraphIntervalAtom } from './atoms';
-import type { GraphTimeParameters } from './models';
 
 const HostGraph = ({ details }: TabProps): JSX.Element => {
-  const [graphTimeParameters, setGraphTimeParameters] =
-    useState<GraphTimeParameters>();
-
-  const [updatedGraphInterval, setUpdatedGraphInterval] = useAtom(
-    updatedGraphIntervalAtom
-  );
+  const [graphTimeParameters, setGraphTimeParameters] = useState();
 
   const { sendRequest, sending } = useRequest({
     request: listResources
   });
+
+  const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
 
   const limit = 6;
 
@@ -53,16 +49,20 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     });
   };
 
-  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
+  const getTimePeriodsParameters = (data): void => {
     setGraphTimeParameters(data);
   };
+
+  const newGraphInterval = updatedGraphInterval
+    ? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
+    : undefined;
 
   return (
     <InfiniteScroll<Resource>
       details={details}
       filter={
         <TimePeriods
-          adjustTimePeriodData={updatedGraphInterval}
+          adjustTimePeriodData={newGraphInterval}
           getParameters={getTimePeriodsParameters}
           renderExternalComponent={<GraphOptions />}
         />
@@ -72,19 +72,13 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
       loadingSkeleton={<LoadingSkeleton />}
       preventReloadWhen={isNil(details)}
       sendListingRequest={sendListingRequest}
-      graphTimeParameters={graphTimeParameters}
     >
-      {({
-        infiniteScrollTriggerRef,
-        entities,
-        graphTimeParameters
-      }): JSX.Element => {
+      {({ infiniteScrollTriggerRef, entities }): JSX.Element => {
         return (
           <ServiceGraphs
             graphTimeParameters={graphTimeParameters}
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
             services={entities}
-            updateGraphInterval={setUpdatedGraphInterval}
           />
         );
       }}

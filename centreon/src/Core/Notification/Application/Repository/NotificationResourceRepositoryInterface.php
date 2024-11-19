@@ -27,9 +27,9 @@ use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\ReadNotificationResourceRepositoryInterface as ReadRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationResourceRepositoryInterface as WriteRepositoryInterface;
-use Core\Notification\Domain\Model\HostEvent;
+use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ServiceEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 interface NotificationResourceRepositoryInterface extends ReadRepositoryInterface, WriteRepositoryInterface
 {
@@ -45,7 +45,7 @@ interface NotificationResourceRepositoryInterface extends ReadRepositoryInterfac
     /**
      * Get associated Event enum class.
      *
-     * @return class-string<HostEvent|ServiceEvent>
+     * @return class-string<NotificationHostEvent|NotificationServiceEvent>
      */
     public function eventEnum(): string;
 
@@ -59,7 +59,7 @@ interface NotificationResourceRepositoryInterface extends ReadRepositoryInterfac
     /**
      * Get associated resource type.
      *
-     * @return NotificationResource::TYPE_*
+     * @return NotificationResource::*_RESOURCE_TYPE
      */
     public function resourceType(): string;
 }

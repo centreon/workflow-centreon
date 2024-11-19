@@ -1,5 +1,5 @@
 import { GraphOptionId } from '../Graph/Performance/models';
-import type {
+import {
   AcknowledgementDetails,
   Downtime,
   NamedEntity,
@@ -11,7 +11,7 @@ import type {
   Status
 } from '../models';
 
-import type { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
+import { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 
 export interface Group extends Partial<NamedEntity> {
   configuration_uri: string | null;

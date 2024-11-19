@@ -17,7 +17,6 @@
 /etc/pam.d
 /etc/centreon-gorgone
 /usr/lib/sudo
-/usr/lib/x86_64-linux-gnu/perl
 /usr/lib/x86_64-linux-gnu/perl5
 /var/www/html
 /usr/lib/apache2/modules

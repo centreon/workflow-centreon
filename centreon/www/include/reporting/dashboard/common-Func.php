@@ -312,12 +312,12 @@ function getPeriodList()
     $periodList[""] = "";
     $periodList["yesterday"] = _("Yesterday");
     $periodList["thisweek"] = _("This Week");
-    $periodList["last7days"] = _("Last 7 days");
+    $periodList["last7days"] = _("Last 7 Days");
     $periodList["thismonth"] = _("This Month");
-    $periodList["last30days"] = _("Last 30 days");
-    $periodList["lastmonth"] = _("Last month");
+    $periodList["last30days"] = _("Last 30 Days");
+    $periodList["lastmonth"] = _("Last Month");
     $periodList["thisyear"] = _("This Year");
-    $periodList["lastyear"] = _("Last year");
+    $periodList["lastyear"] = _("Last Year");
 
     return $periodList;
 }

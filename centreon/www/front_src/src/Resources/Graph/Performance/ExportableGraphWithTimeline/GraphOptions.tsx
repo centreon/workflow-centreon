@@ -11,7 +11,7 @@ import {
   setGraphTabParametersDerivedAtom,
   tabParametersAtom
 } from '../../../Details/detailsAtoms';
-import type { GraphOption, GraphOptions } from '../../../Details/models';
+import { GraphOption, GraphOptions } from '../../../Details/models';
 
 import {
   changeGraphOptionsDerivedAtom,

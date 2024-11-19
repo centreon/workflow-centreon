@@ -50,8 +50,8 @@ class CentreonXMLBGRequest
      * Objects
      */
 
-    public CentreonDB $DB;
-    public CentreonDB $DBC;
+    public $DB;
+    public $DBC;
     public $XML;
     public $GMT;
     public $hostObj;

@@ -27,7 +27,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRulePresenterInterface;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRuleResponse;
-use Core\Notification\Application\UseCase\FindNotifiableRule\Response\ContactDto;
+use Core\Notification\Application\UseCase\FindNotifiableRule\Response\ChannelEmailContactResponseDto;
 
 final class FindNotifiableRulePresenter extends AbstractPresenter implements FindNotifiableRulePresenterInterface
 {
@@ -41,7 +41,7 @@ final class FindNotifiableRulePresenter extends AbstractPresenter implements Fin
                         'subject' => $data->channels->email->subject,
                         'formatted_message' => $data->channels->email->formattedMessage,
                         'contacts' => array_map(
-                            static fn(ContactDto $contact) => [
+                            static fn(ChannelEmailContactResponseDto $contact) => [
                                 'email_address' => $contact->emailAddress,
                                 'full_name' => $contact->fullName,
                             ],

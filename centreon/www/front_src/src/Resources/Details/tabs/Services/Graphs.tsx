@@ -1,19 +1,17 @@
-import type { RefObject } from 'react';
+import { RefObject } from 'react';
 
 import { path, equals, isNil, last, not, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import type { Interval } from '@centreon/ui';
-import type { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
-import type { Resource } from '../../../models';
-import ChartGraph from '../Graph/ChartGraph';
-import type { GraphTimeParameters } from '../Graph/models';
+import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
+import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { Resource } from '../../../models';
+import { GraphTimeParameters } from '../Graph/models';
 
 interface Props {
   graphTimeParameters: GraphTimeParameters;
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
   services: Array<Resource>;
-  updateGraphInterval: (args: Interval) => void;
 }
 
 export interface ResourceGraphMousePosition {
@@ -35,8 +33,7 @@ const useStyles = makeStyles()((theme) => ({
 const ServiceGraphs = ({
   services,
   infiniteScrollTriggerRef,
-  graphTimeParameters,
-  updateGraphInterval
+  graphTimeParameters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -52,10 +49,12 @@ const ServiceGraphs = ({
 
         return (
           <div key={id}>
-            <ChartGraph
-              resource={service}
+            <ExportableGraphWithTimeline
+              interactWithGraph
+              limitLegendRows
+              graphHeight={120}
               graphTimeParameters={graphTimeParameters}
-              updatedGraphInterval={updateGraphInterval}
+              resource={service}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}
           </div>

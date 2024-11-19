@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -32,8 +32,7 @@ import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
 import NoResultsMessage from '../NoResultsMessage';
 import { selectedResourcesDetailsAtom } from '../detailsAtoms';
-import type { ResourceDetails } from '../models';
-import type { GraphTimeParameters } from '../tabs/Graph/models';
+import { ResourceDetails } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -95,7 +94,6 @@ interface Props<TEntity> {
   sendListingRequest?: (parameters: {
     atPage?: number;
   }) => Promise<ListingModel<TEntity>>;
-  graphTimeParameters?: GraphTimeParameters;
 }
 
 const InfiniteScrollContent = <TEntity extends { id: number }>({
@@ -107,8 +105,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   preventReloadWhen = false,
   sendListingRequest,
   children,
-  details,
-  graphTimeParameters
+  details
 }: Props<TEntity>): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -249,16 +246,7 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
             {cond([
               [always(isNil(entities)), always(loadingSkeleton)],
               [isEmpty, always(<NoResultsMessage />)],
-              [
-                T,
-                always(
-                  children({
-                    entities,
-                    infiniteScrollTriggerRef,
-                    graphTimeParameters
-                  })
-                )
-              ]
+              [T, always(children({ entities, infiniteScrollTriggerRef }))]
             ])(entities)}
           </div>
           <div className={classes.fab}>
@@ -290,8 +278,7 @@ const MemoizedInfiniteScrollContent = memoizeComponent({
     'loading',
     'preventReloadWhen',
     'filter',
-    'details',
-    'graphTimeParameters'
+    'details'
   ]
 }) as typeof InfiniteScrollContent;
 

@@ -45,7 +45,6 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
-use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -83,7 +82,6 @@ final class AddHost
         private readonly AddHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-        private readonly WriteRealTimeHostRepositoryInterface $writeRealTimeHostRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -107,8 +105,6 @@ final class AddHost
                 return;
             }
 
-            $accessGroups = [];
-
             if (! $this->user->isAdmin()) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $accessGroups;
@@ -122,9 +118,7 @@ final class AddHost
                 $this->linkHostGroups($request, $hostId);
                 $this->linkParentTemplates($request, $hostId);
                 $this->addMacros($request, $hostId);
-                if ($accessGroups !== []) {
-                    $this->writeRealTimeHostRepository->addHostToResourceAcls($hostId, $accessGroups);
-                }
+                // Note: host is not linked to any ACLsResource
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($request->monitoringServerId);
 
                 $this->dataStorageEngine->commitTransaction();

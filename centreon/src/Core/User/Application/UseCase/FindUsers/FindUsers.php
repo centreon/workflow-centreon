@@ -81,9 +81,8 @@ final class FindUsers
 
                     return;
                 }
-                $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
+                $users = $this->readUserRepository->findByAccessGroupsAndRequestParameters(
                     $this->accessGroups,
-                    $this->user,
                     $this->requestParameters
                 );
             }
@@ -122,9 +121,6 @@ final class FindUsers
         return $response;
     }
 
-    /**
-     * @throws \Throwable
-     */
     private function hasAccessToAllUsers(): bool
     {
         if ($this->user->isAdmin()) {

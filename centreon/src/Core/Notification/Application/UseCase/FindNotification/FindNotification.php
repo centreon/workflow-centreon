@@ -35,9 +35,9 @@ use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Domain\Model\Contact as NotificationContact;
-use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -87,10 +87,8 @@ final class FindNotification
                 ]);
                 $presenter->presentResponse(new NotFoundResponse(_('Notification')));
             } else {
-                $this->info('Get all notification messages for notification with ID #' . $notificationId);
                 $notificationMessages = $this->notificationRepository->findMessagesByNotificationId($notificationId);
-                $this->info('Get all notification users for notification with ID #' . $notificationId);
-                $notifiedUsers = $this->findNotificationUsers($notificationId);
+                $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
                 $notifiedContactGroups = $this->findContactGroupsByNotificationId($notificationId);
                 $notificationResources = $this->findResourcesByNotificationId($notificationId);
 
@@ -122,29 +120,6 @@ final class FindNotification
      *
      * @throws \Throwable
      *
-     * @return NotificationContact[]
-     */
-    private function findNotificationUsers(int $notificationId): array
-    {
-        if ($this->user->isAdmin()) {
-            $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationId($notificationId));
-        } else {
-            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-            $notifiedUsers = array_values($this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
-                $notificationId,
-                $this->user,
-                $accessGroups
-            ));
-        }
-
-        return $notifiedUsers;
-    }
-
-    /**
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
      * @return NotificationResource[]
      */
     private function findResourcesByNotificationId(int $notificationId): array
@@ -159,7 +134,7 @@ final class FindNotification
             }
 
             if ($resource !== null) {
-                $resources[] = $resource;
+                $resources[$resource->getType()] = $resource;
             }
         }
 
@@ -167,7 +142,7 @@ final class FindNotification
     }
 
     /**
-     * Retrieve notification contact groups based on ACL.
+     * Retrieve notification contactgroup with user rights.
      *
      * @param int $notificationId
      *
@@ -179,13 +154,11 @@ final class FindNotification
     {
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
-        }  
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+        }
 
-        return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
+        return $this->notificationRepository->findContactGroupsByNotificationIdAndUserId(
             $notificationId,
-            $this->user,
-            $accessGroups
+            $this->user->getId()
         );
     }
 
@@ -193,8 +166,8 @@ final class FindNotification
      * create FindNotificationResponse Dto.
      *
      * @param Notification $notification
-     * @param Message[] $notificationMessages
-     * @param NotificationContact[] $notifiedUsers
+     * @param NotificationMessage[] $notificationMessages
+     * @param ConfigurationUser[] $notifiedUsers
      * @param ContactGroup[] $notifiedContactGroups
      * @param NotificationResource[] $notificationResources
      *
@@ -216,7 +189,7 @@ final class FindNotification
         $response->isActivated = $notification->isActivated();
 
         $response->messages = array_map(
-            static fn(Message $message): array => [
+            static fn(NotificationMessage $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
@@ -226,7 +199,7 @@ final class FindNotification
         );
 
         $response->users = array_map(
-            static fn(NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn(ConfigurationUser $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $notifiedUsers
         );
 
@@ -248,7 +221,7 @@ final class FindNotification
                 ),
             ];
             if (
-                $resource->getType() === NotificationResource::TYPE_HOST_GROUP
+                $resource->getType() === NotificationResource::HOSTGROUP_RESOURCE_TYPE
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [

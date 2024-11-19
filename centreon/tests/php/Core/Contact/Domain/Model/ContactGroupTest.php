@@ -27,10 +27,6 @@ use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 
-it('should raise an exception when the contact group name is empty', function () {
-    new ContactGroup(1, '', '');
-})->throws(InvalidArgumentException::class, AssertionException::notEmpty('ContactGroup::name')->getMessage());
-
-it('should raise an exception when the contact group alias is empty', function () {
-    new ContactGroup(1, '', '');
+it('should thrown an Exception when a contactgroupname is empty', function () {
+    new ContactGroup(1, '');
 })->throws(InvalidArgumentException::class, AssertionException::notEmpty('ContactGroup::name')->getMessage());

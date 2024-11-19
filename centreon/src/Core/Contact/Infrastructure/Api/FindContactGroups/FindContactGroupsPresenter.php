@@ -38,7 +38,7 @@ class FindContactGroupsPresenter extends AbstractPresenter implements FindContac
      * @param PresenterFormatterInterface $presenterFormatter
      */
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
+        private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
     }

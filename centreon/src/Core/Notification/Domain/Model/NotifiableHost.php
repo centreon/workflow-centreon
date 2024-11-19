@@ -29,7 +29,7 @@ class NotifiableHost
      * @param int $id
      * @param string $name
      * @param string|null $alias
-     * @param array<HostEvent> $events
+     * @param array<NotificationHostEvent> $events
      * @param array<NotifiableService> $services
      */
     public function __construct(
@@ -66,7 +66,7 @@ class NotifiableHost
     }
 
     /**
-     * @return array<HostEvent>
+     * @return array<NotificationHostEvent>
      */
     public function getEvents(): array
     {

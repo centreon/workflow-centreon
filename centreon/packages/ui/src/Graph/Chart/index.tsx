@@ -1,4 +1,4 @@
-import { type MutableRefObject, memo, useEffect, useRef } from 'react';
+import { MutableRefObject, memo, useRef } from 'react';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -8,15 +8,15 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
+import { equals } from 'ramda';
 
 import { ParentSize } from '../..';
 import Loading from '../../LoadingSkeleton';
-import type { LineChartData, Thresholds } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 
 import Chart from './Chart';
-import { useChartStyles } from './Chart.styles';
 import LoadingSkeleton from './LoadingSkeleton';
-import type { GlobalAreaLines, LineChartProps } from './models';
+import { GlobalAreaLines, LineChartProps } from './models';
 import useChartData from './useChartData';
 
 dayjs.extend(localizedFormat);
@@ -32,8 +32,6 @@ interface Props extends Partial<LineChartProps> {
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  getRef?: (ref: MutableRefObject<HTMLDivElement | null>) => void;
-  containerStyle?: string;
 }
 
 const WrapperChart = ({
@@ -63,18 +61,10 @@ const WrapperChart = ({
   barStyle,
   thresholds,
   thresholdUnit,
-  limitLegend,
-  getRef,
-  ...rest
+  limitLegend
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useChartStyles();
-
   const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    getRef?.(lineChartRef);
-  }, [lineChartRef?.current]);
 
   if (loading && !adjustedData) {
     return (
@@ -92,7 +82,7 @@ const WrapperChart = ({
   return (
     <div
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
-      className={cx(classes.wrapperContainer, rest?.containerStyle)}
+      style={{ height: '100%', overflow: 'hidden', width: '100%' }}
     >
       <ParentSize>
         {({
@@ -128,4 +118,4 @@ const WrapperChart = ({
   );
 };
 
-export default memo(WrapperChart);
+export default memo(WrapperChart, equals);

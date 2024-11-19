@@ -1,16 +1,16 @@
 import { buildListingEndpoint } from '@centreon/ui';
 
 export const additionalConnectorsEndpoint =
-  '/configuration/additional-connector-configurations';
+  '/configuration/additional-connectors';
 
 export const getAdditionalConnectorEndpoint = (id): string =>
-  `/configuration/additional-connector-configurations/${id}`;
+  `/configuration/additional-connectors/${id}`;
 
 export const pollersEndpoint = '/configuration/monitoring-servers';
 
 export const getPollersForConnectorTypeEndpoint = ({
   type = 'vmware_v6'
-}): string => `/configuration/additional-connector-configurations/pollers/${type}`;
+}): string => `/configuration/additional-connectors/pollers/${type}`;
 
 export const getPollersEndpoint = (parameters): string =>
   buildListingEndpoint({
