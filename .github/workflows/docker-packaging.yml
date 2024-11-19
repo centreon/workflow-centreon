@@ -12,7 +12,7 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".github/docker/Dockerfile.packaging-*"
-  pull_request:
+  pull_request_target:
     paths:
       - ".github/docker/Dockerfile.packaging-*"
 
@@ -29,8 +29,8 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   dockerize:
-    needs: [set-pr-environment, get-version]
-    if: needs.set-pr-environment.outputs.pull_request_environment == 'internal_contributor'
+    needs: [get-version]
+
     strategy:
       fail-fast: false
       matrix:
