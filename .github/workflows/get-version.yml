@@ -58,7 +58,6 @@ jobs:
       - name: Get pull request environment
         id: pull_request_environment
         run: |
-          echo "${{ github.event_name }}"
           PULL_REQUEST_ENVIRONMENT="internal_contributor"
           if [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
             PULL_REQUEST_ENVIRONMENT="external_contributor"
@@ -93,7 +92,7 @@ jobs:
 
       - id: get_version
         run: |
-          set -x
+          echo "${{ github.event_name }}"
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
             . ${{ inputs.version_file }}
