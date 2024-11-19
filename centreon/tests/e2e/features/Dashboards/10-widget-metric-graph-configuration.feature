@@ -56,7 +56,7 @@ Feature: Configuring metrics graph widget
 
   @TEST_MON-119753
   Scenario: Filtering service list by selected host
-    Given a dashboard having Metrics Graph widget with multiple hosts
+    Given a dashboard having a Metrics Graph widget with multiple hosts
     When the dashboard administrator opens service list
     Then only the services associated with the selected hosts should be displayed
 
@@ -104,3 +104,9 @@ Feature: Configuring metrics graph widget
     Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
     When the dashboard administrator clicks the "Display as Bar Chart" button
     Then the graph should be displayed as a bar chart
+
+  @TEST_MON-147771
+  Scenario: Update Metrics Graph by selecting a custom time period
+    Given a dashboard featuring a configured Metrics Graph widget with multiple metrics
+    When the dashboard administrator selects a custom time period for the graph
+    Then the graph updates to reflect data for the selected time period
