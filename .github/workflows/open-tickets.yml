@@ -1,4 +1,4 @@
-name: dsm
+name: open-tickets
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -13,9 +13,9 @@ on:
       - reopened
       - ready_for_review
     paths:
-      - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
+      - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/veracode.json"
+      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -23,41 +23,25 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "centreon-dsm/**"
-      - "!centreon-dsm/veracode.json"
-      - "!centreon-dsm/.veracode-exclusions"
+      - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/veracode.json"
+      - "!centreon-open-tickets/.veracode-exclusions"
 
 env:
-  module: dsm
+  module: open-tickets
 
 jobs:
-  validation:
-    runs-on: ubuntu-22.04
-    outputs:
-      environment_pull_request: ${{ steps.validate.outputs.environment_pull_request }}
-    steps:
-      - name: validate
-        id: validate
-        run: |
-          ENVIRONMENT_PULL_REQUEST="internal_contributor"
-          if [[ "${{ github.event.pull_request.author_association }}" != "MEMBER" || "${{ github.event.pull_request.author_association }}" != "CONTRIBUTOR" || "${{ github.event.pull_request.author_association }}" != "OWNER" ]]; then
-            ENVIRONMENT_PULL_REQUEST="external_contributor"
-          fi
-          echo "environment_pull_request=$ENVIRONMENT_PULL_REQUEST" >> $GITHUB_OUTPUT
-        shell: bash
-
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
-      environment_pull_request: ${{ needs.validate.outputs.environment_pull_request }}
+      version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-analysis.yml
     with:
-      module_directory: centreon-dsm
-      module_name: centreon-dsm
+      module_directory: centreon-open-tickets
+      module_name: centreon-open-tickets
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
@@ -86,21 +70,62 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --optimize-autoloader
-        working-directory: centreon-dsm
+        working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 0
-        run: vendor/bin/phpstan analyse --no-progress --level=0 --configuration=phpstan.neon
-        working-directory: centreon-dsm
+      - name: Run of phpstan on /www at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+        working-directory: centreon-open-tickets
+
+      - name: Run of phpstan on /src at level max
+        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+        working-directory: centreon-open-tickets
+
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
+        with:
+          working-directory: centreon-open-tickets
+          composer-options: "--optimize-autoloader"
+
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon-open-tickets
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
-    needs: [get-version, backend-lint]
+    needs:
+      [
+        get-version,
+        backend-lint,
+        backend-unit-test
+      ]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -132,15 +157,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - name: Change macro
-        run: |
-          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
-        shell: bash
-
       - name: Package
         uses: ./.github/actions/package-nfpm
         with:
-          nfpm_file_pattern: "centreon-dsm/packaging/*.yaml"
+          nfpm_file_pattern: "centreon-open-tickets/packaging/*.yaml"
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-version.outputs.major_version }}
@@ -157,7 +177,7 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch'}}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -166,9 +186,9 @@ jobs:
       - name: Deliver sources
         uses: ./.github/actions/release-sources
         with:
-          bucket_directory: centreon-dsm
-          module_directory: centreon-dsm
-          module_name: centreon-dsm
+          bucket_directory: centreon-open-tickets
+          module_directory: centreon-open-tickets
+          module_name: centreon-open-tickets
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
@@ -190,7 +210,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: dsm
+          module_name: open-tickets
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -215,7 +235,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: dsm
+          module_name: open-tickets
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -240,7 +260,7 @@ jobs:
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: dsm
+          module: open-tickets
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}

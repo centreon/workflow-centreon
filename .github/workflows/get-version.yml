@@ -7,7 +7,7 @@ on:
       environment_pull_request:
         description: "environment for pull request runs"
         required: true
-        type: string
+        type: string        
     outputs:
       major_version:
         description: "major version"
@@ -38,7 +38,6 @@ on:
 jobs:
   get-version:
     runs-on: ubuntu-22.04
-    environment: ${{ inputs.environment_pull_request }}
     outputs:
       major_version: ${{ steps.get_version.outputs.major_version }}
       minor_version: ${{ steps.get_version.outputs.minor_version }}
