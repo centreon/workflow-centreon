@@ -17,7 +17,7 @@ jobs:
           PULL_REQUEST_ENVIRONMENT="external_contributor"
           if [[ "${{ github.event_name }}" == 'pull_request_target' ]] &&
             [[ "${{ github.event.pull_request.author_association }}" == "MEMBER" ||
-                "${{ github.event.pull_request.author_association }}" == "COLLABORATOR" ||
+                "${{ github.event.pull_request.author_association }}" == "CONTRIBUTOR" ||
                 "${{ github.event.pull_request.author_association }}" == "OWNER" ]]
           then
             # Not requiring internal approvals if the author is from the Centreon organization
@@ -27,8 +27,4 @@ jobs:
             PULL_REQUEST_ENVIRONMENT="internal_contributor"
           fi
           echo "pull_request_environment=$PULL_REQUEST_ENVIRONMENT" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Check env secret
-        run: echo "is my secret safe ? ${{ secrets.MY_INTERNAL_SECRET }}"
         shell: bash
