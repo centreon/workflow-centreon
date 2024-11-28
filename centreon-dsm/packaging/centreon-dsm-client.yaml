@@ -1,4 +1,5 @@
 name: "centreon-dsm-client"
+new version
 arch: "${ARCH}"
 platform: "linux"
 version_schema: "none"
