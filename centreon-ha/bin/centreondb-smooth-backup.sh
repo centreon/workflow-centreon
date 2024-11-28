@@ -27,6 +27,7 @@ while [ $# -gt 0 ] ; do
     esac
     shift
 done
+ls -la
 
 if [ "$OPT_TOTALINCR" -eq 1 ] && [ "$OPT_INCR" -eq 1 ] ; then
 	echo "ERROR: Can't use -i and -I option" >&2
