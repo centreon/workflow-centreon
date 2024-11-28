@@ -11,6 +11,8 @@
 
 source /etc/centreon-ha/mysql-resources.sh
 
+tata
+
 OPT_TOTAL=1
 OPT_TOTALINCR=0
 OPT_INCR=0
