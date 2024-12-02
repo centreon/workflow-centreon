@@ -19,9 +19,6 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     minHeight: '30vh',
     width: '100%'
-  },
-  description: {
-    maxWidth: '65%'
   }
 }));
 

@@ -39,7 +39,8 @@ use Core\HostGroup\Domain\Model\NewHostGroup;
 class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implements WriteHostGroupRepositoryInterface
 {
     use LoggerTrait;
-    private const HOSTGROUP_PROPERTIES_MAP = [
+    public const HOSTGROUP_OBJECT_TYPE = 'hostgroup';
+    private const HOST_PROPERTIES_MAP = [
         'name' => 'hg_name',
         'alias' => 'hg_alias',
         'notes' => 'hg_notes',
@@ -84,7 +85,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
             $this->writeHostGroupRepository->deleteHostGroup($hostGroupId);
 
             $actionLog = new ActionLog(
-                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                self::HOSTGROUP_OBJECT_TYPE,
                 $hostGroupId,
                 $hostGroup->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
@@ -110,7 +111,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
             }
 
             $actionLog = new ActionLog(
-                ActionLog::OBJECT_TYPE_HOSTGROUP,
+                self::HOSTGROUP_OBJECT_TYPE,
                 $hostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
@@ -152,7 +153,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    ActionLog::OBJECT_TYPE_HOSTGROUP,
+                    self::HOSTGROUP_OBJECT_TYPE,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
@@ -166,7 +167,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     ? ActionLog::ACTION_TYPE_ENABLE
                     : ActionLog::ACTION_TYPE_DISABLE;
                 $actionLog = new ActionLog(
-                    ActionLog::OBJECT_TYPE_HOSTGROUP,
+                    self::HOSTGROUP_OBJECT_TYPE,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
@@ -175,7 +176,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $this->writeActionLogRepository->addAction($actionLog);
 
                 $actionLogChange = new ActionLog(
-                    ActionLog::OBJECT_TYPE_HOSTGROUP,
+                    self::HOSTGROUP_OBJECT_TYPE,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
@@ -191,7 +192,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
             if (! array_key_exists('isActivated', $diff) && count($diff) >= 1) {
                 $actionLogChange = new ActionLog(
-                    ActionLog::OBJECT_TYPE_HOSTGROUP,
+                    self::HOSTGROUP_OBJECT_TYPE,
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
@@ -240,7 +241,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
         foreach ($hostGroupReflection->getProperties() as $property) {
             $propertyName = $property->getName();
 
-            $mappedName = self::HOSTGROUP_PROPERTIES_MAP[$propertyName] ?? $propertyName;
+            $mappedName = self::HOST_PROPERTIES_MAP[$propertyName] ?? $propertyName;
             $value = $property->getValue($hostGroup);
             if ($value === null) {
                 $value = '';

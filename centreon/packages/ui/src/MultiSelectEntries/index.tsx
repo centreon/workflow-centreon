@@ -134,6 +134,8 @@ const MultiSelectEntries = ({
         [classes.container]: true
       } as CxArg)}
       ref={hoverRef as Ref<HTMLDivElement>}
+      role="button"
+      tabIndex={0}
       onClick={onClick}
       onKeyDown={onClick}
     >

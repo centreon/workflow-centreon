@@ -41,7 +41,6 @@ class HtmlAnalyzer
      * Sanitize and remove html tags
      *
      * @param mixed $stringToSanitize
-     *
      * @return string
      */
     public static function sanitizeAndRemoveTags($stringToSanitize): string

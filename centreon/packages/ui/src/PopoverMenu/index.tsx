@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import type { PopperProps } from '@mui/material/Popper';
 
-import { equals, type } from 'ramda';
 import { IconButton } from '..';
 
 const useStyles = makeStyles()((theme) => ({
@@ -30,9 +29,8 @@ interface PopoverData {
 
 interface Props {
   canOpen?: boolean;
-  children: (props?) => JSX.Element | JSX.Element;
+  children: (props?) => JSX.Element;
   className?: string;
-  tooltipClassName?: string;
   dataTestId?: string;
   getPopoverData?: (data: PopoverData) => void;
   icon: JSX.Element;
@@ -54,7 +52,6 @@ const PopoverMenu = ({
   className,
   dataTestId,
   getPopoverData,
-  tooltipClassName,
   popperProps
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -116,11 +113,7 @@ const PopoverMenu = ({
             onResizeCapture={(): undefined => undefined}
             {...popperProps}
           >
-            <Paper className={tooltipClassName}>
-              {equals(type(children), 'Function')
-                ? children({ close })
-                : children}
-            </Paper>
+            <Paper>{children({ close })}</Paper>
           </Popper>
         </ClickAwayListener>
       )}

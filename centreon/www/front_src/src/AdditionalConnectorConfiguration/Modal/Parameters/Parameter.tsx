@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
+
+import { labelName, labelValue } from '../../translatedLabels';
 import { Parameter as ParameterModel } from '../models';
 
 import useParameter from './useParameter';
@@ -38,10 +40,17 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
               key={name}
             >
               <TextField
+                disabled
+                fullWidth
+                dataTestId={name}
+                label={t(labelName)}
+                value={t(name)}
+              />
+              <TextField
                 fullWidth
                 dataTestId={`${name}_value`}
                 error={getError?.(name)}
-                label={t(name)}
+                label={t(labelValue)}
                 name={name}
                 required={getIsFieldRequired(name)}
                 type={getFieldType(name)}

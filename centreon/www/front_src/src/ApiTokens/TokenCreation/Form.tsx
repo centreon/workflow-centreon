@@ -18,7 +18,6 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
-import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -28,6 +27,7 @@ import {
   labelUser
 } from '../translatedLabels';
 
+import { Parameters } from '../api/models';
 import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
 import TokenInput from './TokenInput';

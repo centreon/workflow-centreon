@@ -6,7 +6,7 @@
   "require-dev": {
     "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
+    "centreon/centreon-test-lib": "24.10.x-dev",
     "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
     "friendsofphp/php-cs-fixer": "3.64.*",
     "phpcompatibility/php-compatibility": "9.3.*",

@@ -80,6 +80,8 @@
 class CentreonConnector
 {
 
+    /** @var */
+    public $db;
     /** @var CentreonDB */
     protected $dbConnection;
 
@@ -581,9 +583,7 @@ class CentreonConnector
     /**
      * @param array $values
      * @param array $options
-     *
      * @return array
-     * @throws PDOException
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
@@ -604,7 +604,7 @@ class CentreonConnector
         $query = "SELECT id, name FROM connector " .
             "WHERE id IN (" . $listValues . ") ORDER BY name ";
 
-        $stmt = $this->dbConnection->prepare($query);
+        $stmt = $this->db->prepare($query); // FIXME to ckeck because not initialised no ?
 
         if ($queryValues !== []) {
             foreach ($queryValues as $key => $id) {

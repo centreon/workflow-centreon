@@ -1,26 +1,26 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import {
+import type {
   Category,
   Group,
   ResourceDetails,
   Sensitivity
 } from './Details/models';
 import {
-  AcknowledgementDetails,
-  Downtime,
-  Icon,
-  Notes,
-  Parent,
-  Resource,
-  ResourceEndpoints,
-  ResourceExternals,
-  ResourceLinks,
-  ResourceShortType,
+  type AcknowledgementDetails,
+  type Downtime,
+  type Icon,
+  type Notes,
+  type Parent,
+  type Resource,
+  type ResourceEndpoints,
+  type ResourceExternals,
+  type ResourceLinks,
+  type ResourceShortType,
   ResourceType,
-  ResourceUris,
-  Severity,
-  Status
+  type ResourceUris,
+  type Severity,
+  type Status
 } from './models';
 
 const statusDecoder = JsonDecoder.object<Status>(
@@ -226,7 +226,6 @@ const dateDecoder = JsonDecoder.oneOf<string | undefined | number>(
   [JsonDecoder.optional(JsonDecoder.string), JsonDecoder.isExactly(0)],
   'date'
 );
-
 const resourceDetailsDecoder = JsonDecoder.object<ResourceDetails>(
   {
     acknowledgement: JsonDecoder.optional(acknowledgementDecoder),

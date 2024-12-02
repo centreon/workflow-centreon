@@ -90,7 +90,6 @@ const PanelsLayout = ({
                 id={i}
                 playlistHash={playlistHash}
                 refreshCount={refreshCount}
-                name={name}
               />
             )}
           </DashboardLayout.Item>

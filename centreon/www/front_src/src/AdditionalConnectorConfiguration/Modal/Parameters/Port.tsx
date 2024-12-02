@@ -4,9 +4,9 @@ import { useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { NumberField } from '@centreon/ui';
+import { NumberField, TextField } from '@centreon/ui';
 
-import { labelPort } from '../../translatedLabels';
+import { labelName, labelPort, labelValue } from '../../translatedLabels';
 import { AdditionalConnectorConfiguration } from '../models';
 
 import { useParameterStyles } from './useParametersStyles';
@@ -32,12 +32,19 @@ const Port = (): ReactElement => {
 
   return (
     <div className={classes.parameterItem}>
+      <TextField
+        disabled
+        fullWidth
+        dataTestId={labelPort}
+        label={t(labelName)}
+        value={t(labelPort)}
+      />
       <NumberField
         fullWidth
         required
         dataTestId={`${labelPort}_value`}
         error={error as string}
-        label={t(labelPort)}
+        label={t(labelValue)}
         inputProps={{
           min: 1
         }}

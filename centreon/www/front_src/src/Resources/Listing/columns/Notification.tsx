@@ -8,7 +8,6 @@ import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelNotificationDisabled } from '../../translatedLabels';
 
-import { equals } from 'ramda';
 import IconColumn from './IconColumn';
 
 const useStyles = makeStyles()((theme) => ({
@@ -37,7 +36,7 @@ const NotificationColumn = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  if (equals(row.is_notification_enabled, false)) {
+  if (row.notification_enabled === false) {
     return (
       <IconColumn>
         <div className={classes.container}>

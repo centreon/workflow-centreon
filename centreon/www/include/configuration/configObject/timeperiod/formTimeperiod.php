@@ -284,17 +284,12 @@ $valid = false;
 if ($form->validate()) {
     $tpObj = $form->getElement('tp_id');
     if ($form->getSubmitValue("submitA")) {
-        if (null !== $timeperiodId = insertTimePeriodInAPI()) {
-            $tpObj->setValue($timeperiodId);
-            $o = null;
-            $valid = true;
-        }
+        $tpObj->setValue(insertTimeperiodInDB());
     } elseif ($form->getSubmitValue("submitC")) {
-        if (updateTimeperiodInAPI($tpObj->getValue())) {
-            $o = null;
-            $valid = true;
-        }
+        updateTimeperiodInDB($tpObj->getValue());
     }
+    $o = null;
+    $valid = true;
 }
 
 if ($valid) {

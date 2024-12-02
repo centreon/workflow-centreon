@@ -44,7 +44,7 @@ const Breadcrumb = ({ last, breadcrumb }: Props): JSX.Element => {
         component={RouterLink}
         to={breadcrumb.link}
       >
-        {t(breadcrumb.label)}
+        {breadcrumb.label}
       </Link>
       {optionalLabel}
     </div>

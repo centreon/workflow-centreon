@@ -18174,21 +18174,6 @@ msgstr ""
 #  msgid "Ticket management"
 #  msgstr ""
 
-#  msgid "year"
-#  msgstr ""
-
-#  msgid "month"
-#  msgstr ""
-
-#  msgid "hour"
-#  msgstr ""
-
-#  msgid "minute"
-#  msgstr ""
-
-# msgid "Select a Business Activity to display the preview."
-# msgstr ""
-
 # msgid "Breadcrumb copied"
 # msgstr ""
 

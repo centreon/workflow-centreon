@@ -182,10 +182,7 @@ const MenuItems = ({
                   />
                 )}
             </ListItemIcon>
-            <ListItemText
-              className={classes.rootLabel}
-              primary={t(data.label)}
-            />
+            <ListItemText className={classes.rootLabel} primary={data.label} />
             {optionalLabel}
           </>
         ) : (
@@ -195,7 +192,7 @@ const MenuItems = ({
                 <ArrowIcon isOpen={isOpen} size="small" />
               )}
             </ListItemIcon>
-            <ListItemText className={classes.label} secondary={t(data.label)} />
+            <ListItemText className={classes.label} secondary={data.label} />
             {optionalLabel}
           </>
         )}

@@ -21,13 +21,10 @@
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
-        "useExhaustiveDependencies": "off",
-        "noUnknownUnit": "error",
-        "noUnknownProperty": "error",
-        "noUnknownFunction": "error",
-        "useIsNan": "error"
+        "useExhaustiveDependencies": "off"
       },
       "nursery": {
+        "noConsole": "error",
         "noRestrictedImports": {
           "level": "error",
           "options": {
@@ -36,10 +33,12 @@
               "moment": "Using moment is not encouraged."
             }
           }
-        }
+        },
+        "noUnknownFunction": "error",
+        "noUnknownProperty": "error",
+        "noUnknownUnit": "error"
       },
       "suspicious": {
-        "noConsole": "error",
         "useAwait": "error"
       },
       "performance": {
@@ -55,7 +54,11 @@
           "level": "error",
           "options": {
             "strictCase": false,
-            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+            "filenameCases": [
+              "camelCase",
+              "PascalCase",
+              "kebab-case"
+            ]
           }
         },
         "useNamingConvention": {
@@ -64,7 +67,10 @@
             "strictCase": false,
             "conventions": [
               {
-                "formats": ["camelCase", "PascalCase"],
+                "formats": [
+                  "camelCase",
+                  "PascalCase"
+                ],
                 "selector": {
                   "kind": "variable"
                 }
@@ -73,13 +79,17 @@
                 "selector": {
                   "kind": "interface"
                 },
-                "formats": ["PascalCase"]
+                "formats": [
+                  "PascalCase"
+                ]
               },
               {
                 "selector": {
                   "kind": "enum"
                 },
-                "formats": ["PascalCase"]
+                "formats": [
+                  "PascalCase"
+                ]
               },
               {
                 "selector": {
@@ -92,7 +102,11 @@
                 "selector": {
                   "kind": "functionParameter"
                 },
-                "formats": ["snake_case", "PascalCase", "camelCase"]
+                "formats": [
+                  "snake_case",
+                  "PascalCase",
+                  "camelCase"
+                ]
               },
               {
                 "match": ".*",

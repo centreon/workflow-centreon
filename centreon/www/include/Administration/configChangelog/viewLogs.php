@@ -33,8 +33,6 @@
  *
  */
 
-use Core\ActionLog\Domain\Model\ActionLog;
-
 if (!isset($centreon)) {
     exit();
 }
@@ -51,7 +49,7 @@ require_once "./include/common/autoNumLimit.php";
 function searchUserName($username)
 {
     global $pearDB;
-
+    
     $contactIds = [];
     $prepareContact = $pearDB->prepare(
         "SELECT contact_id FROM contact " .
@@ -168,12 +166,10 @@ $tpl->assign("objTypeLabel", _("Object type : "));
 $tpl->assign("objNameLabel", _("Object name : "));
 $tpl->assign("noModifLabel", _("No modification was made."));
 
-// Add an All Option to existing types.
-$objectTypes = ActionLog::AVAILABLE_OBJECT_TYPES;
-array_unshift($objectTypes, _("All"));
-
+$objects_type_tab = $centreon->CentreonLogAction->listObjecttype();
+sort($objects_type_tab);
 $options = "";
-foreach ($objectTypes as $key => $name) {
+foreach ($objects_type_tab as $key => $name) {
     $name = _("$name");
     $options .= "<option value='$key' "
         . (($otype == $key) ? 'selected' : "")
@@ -197,7 +193,7 @@ $valuesToBind = [];
 if (!empty($searchO) || !empty($searchU) || $otype != 0) {
     $logQuery .= ' WHERE ';
     $hasMultipleSubRequest = false;
-
+    
     if (!empty($searchO)) {
         $logQuery .= "object_name LIKE :object_name ";
         $valuesToBind[':object_name'] = "%" . $searchO . "%";
@@ -219,7 +215,7 @@ if (!empty($searchO) || !empty($searchU) || $otype != 0) {
             $logQuery .= ' AND ';
         }
         $logQuery .= " object_type = :object_type";
-        $valuesToBind[':object_type'] = $objectTypes[$otype];
+        $valuesToBind[':object_type'] = $objects_type_tab[$otype];
     }
 }
 $logQuery .= " ORDER BY action_log_date DESC LIMIT :from, :nbrElement";

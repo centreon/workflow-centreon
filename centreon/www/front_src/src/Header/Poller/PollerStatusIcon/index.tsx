@@ -92,6 +92,7 @@ const PollerStatusIcon = ({
       <Avatar
         aria-label="database"
         className={cx(classes.database, classes.avatar)}
+        role="status"
       >
         <p className={classes.visuallyHiddenText}>{database.label}</p>
         <StorageIcon className={classes.icon} />
@@ -99,6 +100,7 @@ const PollerStatusIcon = ({
       <Avatar
         aria-label="latency"
         className={cx(classes.latency, classes.avatar)}
+        role="status"
       >
         <p className={classes.visuallyHiddenText}>{latency.label}</p>
         <LatencyIcon className={classes.icon} />

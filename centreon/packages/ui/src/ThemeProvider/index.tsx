@@ -261,7 +261,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
             {
               backgroundColor: theme.palette.background.default,
               border: 'none',
-              borderRadius: `${theme.shape.borderRadius}px`,
+              borderRadius: 0,
               boxShadow: theme.shadows[3]
             }
         })

@@ -49,6 +49,8 @@ class CentreonACLResources
 {
     /** @var CentreonDB */
     public $_DB;
+    /** @var */
+    private $DB; // FIXME not used ?
 
     /**
      * CentreonACLResources constructor

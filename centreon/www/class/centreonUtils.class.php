@@ -224,7 +224,13 @@ class CentreonUtils
         try {
             $initForm = $form->getElement('initialValues');
             $initForm = HtmlAnalyzer::sanitizeAndRemoveTags($initForm->getValue());
+
+            if ($initForm === false) {// FIXME not a good test
+                throw new InvalidArgumentException('Invalid Parameters');
+            }
+
             $initialValues = unserialize($initForm, ['allowed_classes' => false]);
+
             if (!empty($initialValues) && isset($initialValues[$key])) {
                 $init = $initialValues[$key];
             }
@@ -309,7 +315,7 @@ class CentreonUtils
      * @param string $stringToEscape String to escape
      * @param int $escapeMethod Escape method (default: ESCAPE_LEGACY_METHOD)
      *
-     * @return string|false Escaped string
+     * @return string Escaped string
      * @see CentreonUtils::ESCAPE_LEGACY_METHOD
      * @see CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
      * @see CentreonUtils::ESCAPE_ALL
@@ -330,9 +336,8 @@ class CentreonUtils
             case self::ESCAPE_ILLEGAL_CHARS:
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
                 return str_replace(str_split($chars), '', $stringToEscape);
-            default: return false;
         }
-    }
+    }// FIXME no return
 
     /**
      * Convert all html tags into HTML entities

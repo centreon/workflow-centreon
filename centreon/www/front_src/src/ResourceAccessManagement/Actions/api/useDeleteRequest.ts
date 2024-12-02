@@ -4,7 +4,6 @@ import {
   equals,
   includes,
   isEmpty,
-  isNil,
   last,
   length,
   prop,
@@ -77,35 +76,35 @@ const useDeleteRequest = ({
     method: fetchMethod,
     onSettled,
     onSuccess: (response) => {
-      const { data } = response as ResponseError;
+      const { statusCode, data } = response as ResponseError;
+      if (equals(statusCode, 207)) {
+        const successfulResponses = data.filter(propEq(204, 'status'));
+        const failedResponses = data.filter(complement(propEq(204, 'status')));
+        const failedResponsesIds = failedResponses
+          .map(prop('href'))
+          .map((item: string) =>
+            Number.parseInt(last(split('/', item)) as string, 10)
+          );
 
-      const successfullResponses =
-        data?.filter(propEq(204, 'status')) || isNil(data);
-      const failedResponses = data?.filter(complement(propEq(204, 'status')));
-      const failedResponsesIds = failedResponses
-        .map(prop('href'))
-        .map((item: string) =>
-          Number.parseInt(last(split('/', item)) as string, 10)
-        );
+        if (isEmpty(successfulResponses)) {
+          showErrorMessage(t(labelFailed));
 
-      if (isEmpty(successfullResponses)) {
-        showErrorMessage(t(labelFailed));
+          return;
+        }
 
-        return;
-      }
+        if (length(successfulResponses) < length(data)) {
+          const failedResponsesNames = selectedRows
+            ?.filter((item) => includes(item.id, failedResponsesIds))
+            .map((item) => item.name);
 
-      if (length(successfullResponses) < length(data)) {
-        const failedResponsesNames = selectedRows
-          ?.filter((item) => includes(item.id, failedResponsesIds))
-          .map((item) => item.name);
+          showWarningMessage(
+            `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
+              ', '
+            )}`
+          );
 
-        showWarningMessage(
-          `${labelFailedToDeleteSelectedRules}: ${failedResponsesNames.join(
-            ', '
-          )}`
-        );
-
-        return;
+          return;
+        }
       }
 
       showSuccessMessage(t(labelSuccess));

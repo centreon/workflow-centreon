@@ -10,7 +10,7 @@ import {
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from '../../Details/detailsAtoms';
-import type { ResourceDetails } from '../../Details/models';
+import { ResourceDetails } from '../../Details/models';
 import { resourceDetailsDecoder } from '../../decoders';
 import {
   labelNoResourceFound,

@@ -53,6 +53,8 @@ class MysqlTable
     private $name = null;
     /** @var string|null */
     private $schema = null;
+    /** @var */
+    private $schemaFile; // FIXME not used
     /** @var int */
     private $activate = 1;
     /** @var string|null */
@@ -367,7 +369,7 @@ class MysqlTable
      *
      * @param int $retentionforward the retention forward
      *
-     * @return void
+     * @return null
      * @throws Exception
      */
     public function setRetentionForward($retentionforward): void
@@ -380,7 +382,7 @@ class MysqlTable
                 . $this->schema . "." . $this->name . "\n"
             );
         }
-    }
+    } // FIXME no return
 
     /**
      * Get retention forward value

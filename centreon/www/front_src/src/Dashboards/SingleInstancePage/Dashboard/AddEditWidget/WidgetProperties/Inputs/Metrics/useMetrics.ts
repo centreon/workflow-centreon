@@ -29,9 +29,8 @@ import {
   Widget,
   WidgetDataResource
 } from '../../../models';
-import { getDataProperty } from '../utils';
+import { getDataProperty, getIsMetaServiceSelected } from '../utils';
 
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
 

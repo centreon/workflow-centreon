@@ -106,13 +106,8 @@ const initialize = ({
     alias: 'deleteNotificationtRequest',
     method: Method.DELETE,
     path: notificationEndpoint({ id: 1 }),
-    response: {
-      data: [
-        {
-          status: 204
-        }
-      ]
-    }
+    response: undefined,
+    statusCode: 204
   });
 
   cy.interceptAPIRequest({

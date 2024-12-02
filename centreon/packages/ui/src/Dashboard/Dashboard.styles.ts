@@ -40,7 +40,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         width: theme.spacing(1)
       },
       '& .react-resizable-handle.react-resizable-handle-s': {
-        bottom: 4,
+        bottom: 0,
         cursor: 'ns-resize',
         height: theme.spacing(1),
         left: 0,
@@ -49,7 +49,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         width: `calc(100% - ${theme.spacing(3)})`
       },
       '& .react-resizable-handle.react-resizable-handle-se': {
-        bottom: 4,
+        bottom: 0,
         cursor: 'nwse-resize',
         height: theme.spacing(2),
         right: 0,
@@ -62,8 +62,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       '& .react-resizable-handle:hover': {
         opacity: 1
       },
-      position: 'relative',
-      height: '100%'
+      position: 'relative'
     }
   })
 );

@@ -6,7 +6,7 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - synchronize
@@ -38,9 +38,7 @@ jobs:
 
   veracode-analysis:
     needs: [get-environment]
-    if: |
-      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
-      github.event.pull_request.draft != 'true'
+    if: ${{ needs.get-environment.outputs.is_targeting_feature_branch != 'true' && github.event.pull_request.draft != 'true' }}
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-dsm
@@ -62,7 +60,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
@@ -115,7 +113,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Change macro
         run: |
@@ -142,16 +140,11 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
-      github.event_name != 'workflow_dispatch' &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch'}}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -165,11 +158,7 @@ jobs:
 
   deliver-rpm:
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
     runs-on: [self-hosted, common]
 
     strategy:
@@ -178,7 +167,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -194,19 +183,15 @@ jobs:
 
   deliver-deb:
     needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) }}
     runs-on: [self-hosted, common]
 
     strategy:
       matrix:
-        distrib: [bookworm, jammy]
+        distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -227,9 +212,7 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon' &&
-      needs.get-environment.outputs.pull_request_environment == 'internal_contributor'
+      ! contains(needs.*.result, 'cancelled')
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -237,7 +220,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -251,3 +234,12 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  set-skip-label:
+    needs: [get-environment, deliver-rpm, deliver-deb, promote]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

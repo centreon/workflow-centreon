@@ -1,4 +1,4 @@
-import { IconButton } from '@centreon/ui';
+import { IconButton } from '@centreon/ui/components';
 import { DeleteOutline } from '@mui/icons-material';
 import { useSetAtom } from 'jotai';
 import { isNotNil, pick } from 'ramda';
@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { itemToDeleteAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelDelete } from '../../translatedLabels';
-import { useStyles } from './Action.styles';
 
 interface Props {
   row: AgentConfigurationListing & {
@@ -16,7 +15,6 @@ interface Props {
 }
 
 const Action = ({ row }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
@@ -34,13 +32,11 @@ const Action = ({ row }: Props): JSX.Element => {
 
   return (
     <IconButton
-      ariaLabel={t(labelDelete)}
-      title={t(labelDelete)}
+      size="small"
+      icon={<DeleteOutline fontSize="small" color="error" />}
       onClick={askBeforeDelete}
-      className={classes.removeButton}
-    >
-      <DeleteOutline className={classes.removeIcon} />
-    </IconButton>
+      title={t(labelDelete)}
+    />
   );
 };
 

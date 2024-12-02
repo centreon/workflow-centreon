@@ -73,8 +73,8 @@ $preferences = $widgetObj->getWidgetPreferences($widgetId);
 $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
 
 $hostStateLabels = [0 => "Up", 1 => "Down", 2 => "Unreachable", 4 => "Pending"];
-
 $serviceStateLabels = [0 => "Ok", 1 => "Warning", 2 => "Critical", 3 => "Unknown", 4 => "Pending"];
+
 try {
     $query = <<<'SQL_WRAP'
         SELECT SQL_CALC_FOUND_ROWS DISTINCT

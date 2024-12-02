@@ -120,7 +120,6 @@ export interface LineChartProps {
   tooltip?: Tooltip;
   width: number;
   zoomPreview?: InteractedZone;
-  skipIntersectionObserver?: boolean;
 }
 
 export interface Area {

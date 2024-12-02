@@ -31,8 +31,6 @@ interface WriteServiceCategoryRepositoryInterface
      * Delete service category by id.
      *
      * @param int $serviceCategoryId
-     *
-     * @throws \Throwable
      */
     public function deleteById(int $serviceCategoryId): void;
 

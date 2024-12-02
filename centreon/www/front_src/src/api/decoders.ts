@@ -122,8 +122,7 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   },
   'Feature flags',
   {
-    adExclusionPeriods: 'ad_exclusion_periods',
-    mapVisxViewer: 'map_visx_viewer'
+    adExclusionPeriods: 'ad_exclusion_periods'
   }
 );
 

@@ -1,4 +1,10 @@
-import { Dispatch, MutableRefObject, SetStateAction, useMemo } from 'react';
+import {
+  Dispatch,
+  MutableRefObject,
+  ReactNode,
+  SetStateAction,
+  useMemo
+} from 'react';
 
 import { equals, gt, isNil, lte, reduce } from 'ramda';
 
@@ -6,8 +12,8 @@ import { Stack } from '@mui/material';
 
 import Legend from '../../Chart/Legend';
 import { legendWidth } from '../../Chart/Legend/Legend.styles';
-import { LegendModel } from '../../Chart/models';
 import { Line } from '../timeSeries/models';
+
 import Header from './Header';
 import { LineChartHeader } from './Header/models';
 import { useBaseChartStyles } from './useBaseChartStyles';
@@ -19,9 +25,12 @@ interface Props {
   header?: LineChartHeader;
   height: number | null;
   isHorizontal?: boolean;
-  legend: Pick<LegendModel, 'renderExtraComponent' | 'placement' | 'mode'> & {
+  legend: {
     displayLegend: boolean;
     legendHeight?: number;
+    mode?: 'grid' | 'list';
+    placement?: 'left' | 'right' | 'bottom';
+    renderExtraComponent?: ReactNode;
   };
   legendRef: MutableRefObject<HTMLDivElement | null>;
   limitLegend?: number | false;

@@ -1,5 +1,5 @@
 description: |
-  Results contain a mixture of responses
+  Indicates that there might be a mixture of responses
 content:
   application/json:
     schema:

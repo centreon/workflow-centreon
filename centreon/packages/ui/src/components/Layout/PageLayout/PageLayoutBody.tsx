@@ -17,7 +17,6 @@ export const PageLayoutBody = ({
     <section
       className={classes.pageLayoutBody}
       data-has-background={hasBackground}
-      data-has-actions={!!children?.length}
       id="page-body"
     >
       {children}

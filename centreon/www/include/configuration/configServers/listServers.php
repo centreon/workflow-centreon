@@ -336,7 +336,6 @@ if (!$isRemote) {
             "id" => "exportConfigurationLink" 
         ]
     );
-  
 }
 
 $tpl->assign('limit', $limit);

@@ -33,8 +33,6 @@
  *
  */
 
-use Core\ActionLog\Domain\Model\ActionLog;
-
 if (!isset($centreon)) {
     exit();
 }
@@ -111,12 +109,7 @@ function enableHostCategoriesInDB(int $hcId = null, $hcArr = [])
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
         $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $key,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_ENABLE
-        );
+        $centreon->CentreonLogAction->insertLog("hostcategories", $key, $row['hc_name'], "enable");
     }
 }
 
@@ -142,12 +135,7 @@ function disableHostCategoriesInDB(int $hcId = null, $hcArr = [])
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
         $row = $statement2->fetch();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $key,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_DISABLE
-        );
+        $centreon->CentreonLogAction->insertLog("hostcategories", $key, $row['hc_name'], "disable");
     }
 }
 
@@ -166,12 +154,7 @@ function deleteHostCategoriesInDB($hostCategories = [])
 
         $statement2->bindValue(':hc_id', $hcId, \PDO::PARAM_INT);
         $statement2->execute();
-        $centreon->CentreonLogAction->insertLog(
-            object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-            object_id: $hcId,
-            object_name: $row['hc_name'],
-            action_type: ActionLog::ACTION_TYPE_DELETE
-        );
+        $centreon->CentreonLogAction->insertLog("hostcategories", $hcId, $row['hc_name'], "d");
     }
     $centreon->user->access->updateACL();
 }
@@ -276,11 +259,11 @@ function multipleHostCategoriesInDB($hostCategories = [], $nbrDup = [])
                     }
                     $fields["hc_hosts"] = trim($fields["hc_hosts"], ",");
                     $centreon->CentreonLogAction->insertLog(
-                        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-                        object_id: $maxId["MAX(hc_id)"],
-                        object_name: $hc_name,
-                        action_type: ActionLog::ACTION_TYPE_ADD,
-                        fields: $fields
+                        "hostcategories",
+                        $maxId["MAX(hc_id)"],
+                        $hc_name,
+                        "a",
+                        $fields
                     );
                 }
             }
@@ -379,11 +362,11 @@ function insertHostCategories($ret = [])
     $fields = CentreonLogAction::prepareChanges($ret);
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-        object_id: $hcId["MAX(hc_id)"],
-        object_name: $ret["hc_name"],
-        action_type: ActionLog::ACTION_TYPE_ADD,
-        fields: $fields
+        "hostcategories",
+        $hcId["MAX(hc_id)"],
+        CentreonDB::escape($ret["hc_name"]),
+        "a",
+        $fields
     );
     return ($hcId["MAX(hc_id)"]);
 }
@@ -463,11 +446,11 @@ function updateHostCategories($hcId)
     $fields = CentreonLogAction::prepareChanges($ret);
 
     $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
-        object_id: $hcId,
-        object_name: $ret["hc_name"],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: $fields
+        "hostcategories",
+        $hcId,
+        CentreonDB::escape($ret["hc_name"]),
+        "c",
+        $fields
     );
 }
 

@@ -68,7 +68,7 @@
                     {if $can_generate == 1}
                             <a id="exportConfigurationLink" href="{$exportBtn.link}" class="{$exportBtn.class}">
                             {$exportBtn.icon} {$exportBtn.text}
-                        </a>
+                            </a>
                     {/if}
                     {if $can_create_edit == 1}
                         <button type="submit" class="{$duplicateBtn.class}" name="{$duplicateBtn.name}" onClick="{$duplicateBtn.onClickAction}">

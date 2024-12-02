@@ -81,8 +81,7 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-common >= ${MAJOR_VERSION}
-      - centreon-common < ${NEXT_MAJOR_VERSION}
+      - centreon-common = ${VERSION}-${RELEASE}${DIST}
       - centreon-trap = ${VERSION}-${RELEASE}${DIST}
       - centreon-engine >= ${MAJOR_VERSION}
       - centreon-engine < ${NEXT_MAJOR_VERSION}
@@ -122,8 +121,7 @@ overrides:
       - centreon-poller-nagios
   deb:
     depends:
-      - "centreon-common (>= ${MAJOR_VERSION}~)"
-      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
+      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
       - centreon-trap (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-engine (>= ${MAJOR_VERSION}~)"
       - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"

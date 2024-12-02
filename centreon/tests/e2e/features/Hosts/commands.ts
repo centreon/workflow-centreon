@@ -1,10 +1,3 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable @typescript-eslint/method-signature-style */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable @typescript-eslint/no-namespace */
-
 Cypress.Commands.add(
   'waitForElementInIframe',
   (iframeSelector, elementSelector) => {
@@ -43,37 +36,11 @@ Cypress.Commands.add('checkLegacyRadioButton', (label: string) => {
     });
 });
 
-Cypress.Commands.add('updateHostGroupViaApi', (body: HostGroup, hostGroup_name: string) => {
-  let query =
-    `SELECT h.hg_id from hostgroup as h WHERE h.hg_name='${hostGroup_name}'`;
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query
-  }).then(([rows]) => {
-    cy.request({
-      body: body,
-      method: 'PUT',
-      url: `/centreon/api/beta/configuration/hosts/groups/${rows[0].hg_id}`
-    }).then((response) => {
-      expect(response.status).to.eq(204);
-    });
-  });
-
+Cypress.Commands.add('exportConfig', () => {
+  cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
+  cy.getByTestId({ testId: 'Export configuration' }).click();
+  cy.getByTestId({ testId: 'Confirm' }).click();
 });
-
-interface HostGroup {
-  name: string,
-  alias: string,
-  notes: string,
-  notes_url: string,
-  action_url: string,
-  icon_id: number,
-  icon_map_id: number,
-  geo_coords: string,
-  rrd: number,
-  comment: string,
-  is_activated: boolean
-}
 
 declare global {
   namespace Cypress {
@@ -83,7 +50,7 @@ declare global {
         elementSelector: string
       ) => Cypress.Chainable;
       checkLegacyRadioButton: (label: string) => Cypress.Chainable;
-      updateHostGroupViaApi: (body: HostGroup, name: string) => Cypress.Chainable;
+      exportConfig: () => Cypress.Chainable;
     }
   }
 }

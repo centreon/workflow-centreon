@@ -10,12 +10,5 @@ const icon = (
 );
 
 export const DowntimeIcon = (props: SvgIconProps): JSX.Element => (
-  <BaseIcon
-    {...props}
-    dataTestId="DowntimeIcon"
-    Icon={icon}
-    height="24"
-    viewBox="0 0 24 24"
-    width="24"
-  />
+  <BaseIcon {...props} Icon={icon} height="24" viewBox="0 0 24 24" width="24" />
 );

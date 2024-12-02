@@ -26,6 +26,7 @@ import {
   labelName,
   labelNameMustBeAtLeast,
   labelParameters,
+  labelPort,
   labelRemoveVCenterESX,
   labelRequired,
   labelSelectPollers,
@@ -125,8 +126,6 @@ const vcenters = [
   }
 ];
 
-const clickOutideTheField = () => cy.findByTestId('Modal-header').click();
-
 export default (): void => {
   describe('Modal', () => {
     it('displays form fields with default values when the Modal is opened in Creation Mode', () => {
@@ -156,6 +155,11 @@ export default (): void => {
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
       keys(defaultParameters).forEach((parameter) => {
+        cy.get(`input[data-testid="${parameter}"`)
+          .should('be.visible')
+          .should('have.value', parameter)
+          .should('be.disabled');
+
         cy.get(`input[data-testid="${parameter}_value"`)
           .should('be.visible')
           .should('have.value', defaultParameters[parameter])
@@ -165,6 +169,11 @@ export default (): void => {
       cy.findByText(labelAddvCenterESX)
         .should('be.visible')
         .should('not.be.disabled');
+
+      cy.get(`input[data-testid=${labelPort}`)
+        .should('be.visible')
+        .should('have.value', labelPort)
+        .should('be.disabled');
 
       cy.get('input[name="port"]')
         .should('be.visible')
@@ -219,6 +228,12 @@ export default (): void => {
 
       vcenters.forEach((vcenter, index) => {
         keys(vcenter).forEach((parameter) => {
+          cy.get(`input[data-testid="${parameter}"`)
+            .eq(index)
+            .should('be.visible')
+            .should('have.value', parameter)
+            .should('be.disabled');
+
           cy.get(`input[data-testid="${parameter}_value"`)
             .eq(index)
             .should('be.visible')
@@ -230,6 +245,11 @@ export default (): void => {
       cy.findByText(labelAddvCenterESX)
         .should('be.visible')
         .should('not.be.disabled');
+
+      cy.get(`input[data-testid=${labelPort}`)
+        .should('be.visible')
+        .should('have.value', labelPort)
+        .should('be.disabled');
 
       cy.get('input[name="port"]')
         .should('be.visible')
@@ -369,7 +389,7 @@ export default (): void => {
 
         cy.findAllByTestId(labelName).eq(1).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
       });
@@ -380,7 +400,7 @@ export default (): void => {
         cy.findByTestId(labelSelectPollers).click();
 
         cy.contains('poller1').click();
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.findByTestId('CancelIcon').click();
 
@@ -394,7 +414,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="vCenter name_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
 
@@ -416,7 +436,7 @@ export default (): void => {
           .clear()
           .type('vcenter1');
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelVcenterNameMustBeUnique).should('be.visible');
 
@@ -428,7 +448,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="URL_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
 
@@ -440,7 +460,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="Username_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
 
@@ -452,7 +472,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="Username_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('not.exist');
 
@@ -464,7 +484,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="Password_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('be.visible');
 
@@ -476,7 +496,7 @@ export default (): void => {
 
         cy.get(`input[data-testid="Password_value"`).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('not.exist');
 
@@ -498,7 +518,7 @@ export default (): void => {
 
         cy.findAllByTestId(labelName).eq(1).clear().type('ab');
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelNameMustBeAtLeast).should('be.visible');
 
@@ -509,7 +529,7 @@ export default (): void => {
 
         cy.findByLabelText(labelDescription).clear();
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelRequired).should('not.exist');
       });
@@ -518,7 +538,7 @@ export default (): void => {
 
         cy.get('input[name="port"]').clear().type('0.1');
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelInvalidPortNumber).should('be.visible');
 
@@ -529,7 +549,7 @@ export default (): void => {
 
         cy.get('input[name="port"]').clear().type('70000');
 
-        clickOutideTheField();
+        cy.get('body').click(0, 0);
 
         cy.contains(labelInvalidPortNumber).should('be.visible');
 
@@ -541,7 +561,7 @@ export default (): void => {
         ['abc', '170.600.12', 'http://exa_mple.com'].forEach((url, index) => {
           cy.get('input[data-testid="URL_value"').clear().type(url);
 
-          clickOutideTheField();
+          cy.get('body').click(0, 0);
 
           cy.contains(labelMustBeAvalidURL).should('be.visible');
 
@@ -552,7 +572,7 @@ export default (): void => {
           (url, index) => {
             cy.get('input[data-testid="URL_value"').clear().type(url);
 
-            clickOutideTheField();
+            cy.get('body').click(0, 0);
 
             cy.contains(labelMustBeAvalidURL).should('not.exist');
 
@@ -618,30 +638,6 @@ export default (): void => {
         cy.contains(labelAdditionalConnectorUpdated);
 
         cy.matchImageSnapshot();
-      });
-    });
-
-    describe('Ask Before quit popup', () => {
-      it('displays a modal when the form is updated with errors and the cancel button is clicked', () => {
-        initializeModal({ variant: 'update' });
-
-        cy.get('input[name="port"]').clear();
-        cy.contains(labelCancel).click();
-
-        cy.contains('Do you want to resolve the errors?').should('be.visible');
-
-        cy.makeSnapshot();
-      });
-
-      it('displays a modal when the form is updated and the cancel button is clicked', () => {
-        initializeModal({ variant: 'update' });
-
-        cy.findAllByTestId(labelName).eq(1).type('New name');
-        cy.contains(labelCancel).click({ force: true });
-
-        cy.contains('Do you want to save the changes?').should('be.visible');
-
-        cy.makeSnapshot();
       });
     });
   });

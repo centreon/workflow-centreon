@@ -58,10 +58,10 @@ const useTickGraph = ({
       return;
     }
     const mousePositionTimeTick = mousePosition
-      ? getTimeValue({ timeSeries, x: mousePosition[0], xScale })?.timeTick
+      ? getTimeValue({ timeSeries, x: mousePosition[0], xScale }).timeTick
       : 0;
     const timeTickValue = mousePosition
-      ? new Date(mousePositionTimeTick || 0)
+      ? new Date(mousePositionTimeTick)
       : null;
 
     setTickAxisBottom(timeTickValue);

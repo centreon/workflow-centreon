@@ -1,3 +1,5 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
+/* eslint-disable prefer-arrow-functions/prefer-arrow-functions */
 const TrapsSNMPConfiguration = ({
   name,
   oid,
@@ -5,9 +7,9 @@ const TrapsSNMPConfiguration = ({
   output,
   string,
   regexp,
-  severity,
+  severity
 }): Cypress.Chainable => {
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="traps_name"]');
   cy.getIframeBody().find('input[name="traps_name"]').type(name);
   cy.getIframeBody().find('input[name="traps_oid"]').type(oid);
   cy.getIframeBody()
@@ -16,10 +18,10 @@ const TrapsSNMPConfiguration = ({
     .click();
   cy.getIframeBody().contains(`${vendor}`).click();
   cy.getIframeBody().find('input[name="traps_args"]').type(output);
-  cy.getIframeBody().find("div#matchingrules_add").click();
-  cy.getIframeBody().find("input#rule_0").clear().type(string);
-  cy.getIframeBody().find("input#regexp_0").clear().type(regexp);
-  cy.getIframeBody().find("select#rulestatus_0").select(severity);
+  cy.getIframeBody().find('div#matchingrules_add').click();
+  cy.getIframeBody().find('input#rule_0').clear().type(string);
+  cy.getIframeBody().find('input#regexp_0').clear().type(regexp);
+  cy.getIframeBody().find('select#rulestatus_0').select(severity);
 };
 
 const UpdateTrapsSNMPConfiguration = ({
@@ -42,9 +44,9 @@ const UpdateTrapsSNMPConfiguration = ({
   timeout,
   execution_interval,
   output_transform,
-  custom_code,
+  custom_code
 }): Cypress.Chainable => {
-  cy.waitForElementInIframe("#main-content", 'input[name="traps_name"]');
+  cy.waitForElementInIframe('#main-content', 'input[name="traps_name"]');
   cy.getIframeBody().find('input[name="traps_name"]').clear().type(name);
   cy.getIframeBody().find('input[name="traps_oid"]').clear().type(oid);
   cy.getIframeBody()
@@ -65,10 +67,10 @@ const UpdateTrapsSNMPConfiguration = ({
   cy.getIframeBody()
     .find('select[name="traps_advanced_treatment_default"]')
     .select(behavior);
-  cy.getIframeBody().find("div#matchingrules_add").click();
-  cy.getIframeBody().find("input#rule_0").clear().type(string);
-  cy.getIframeBody().find("input#regexp_0").clear().type(regexp);
-  cy.getIframeBody().find("select#rulestatus_0").select(severity);
+  cy.getIframeBody().find('div#matchingrules_add').click();
+  cy.getIframeBody().find('input#rule_0').clear().type(string);
+  cy.getIframeBody().find('input#regexp_0').clear().type(regexp);
+  cy.getIframeBody().find('select#rulestatus_0').select(severity);
   cy.getIframeBody()
     .find('input[name="traps_reschedule_svc_enable"]')
     .parent()
@@ -81,8 +83,8 @@ const UpdateTrapsSNMPConfiguration = ({
     .find('input[name="traps_execution_command"]')
     .type(special_command);
   cy.getIframeBody().find('textarea[name="traps_comments"]').type(comments);
-  cy.getIframeBody().find("li#c2").click();
-  cy.waitForElementInIframe("#main-content", 'span[name="services"]');
+  cy.getIframeBody().find('li#c2').click();
+  cy.waitForElementInIframe('#main-content', 'span[name="services"]');
   cy.getIframeBody()
     .find('input[placeholder="Linked Services"]')
     .parent()
@@ -95,10 +97,10 @@ const UpdateTrapsSNMPConfiguration = ({
     .parent()
     .click();
   cy.getIframeBody().contains(service_templates).click();
-  cy.getIframeBody().find("li#c3").click();
+  cy.getIframeBody().find('li#c3').click();
   cy.waitForElementInIframe(
-    "#main-content",
-    'input[name="traps_routing_value"]',
+    '#main-content',
+    'input[name="traps_routing_value"]'
   );
   cy.getIframeBody().find('input[name="traps_routing_mode"]').parent().click();
   cy.getIframeBody()
@@ -117,9 +119,9 @@ const UpdateTrapsSNMPConfiguration = ({
     .parent()
     .click();
   cy.getIframeBody()
-  .find('input[name*="traps_downtime"][value="2"]')
-  .parent()
-  .click();
+    .find('input[name*="traps_downtime"][value="2"]')
+    .parent()
+    .click();
   cy.getIframeBody()
     .find('input[name="traps_output_transform"]')
     .type(output_transform);
@@ -128,30 +130,12 @@ const UpdateTrapsSNMPConfiguration = ({
     .type(custom_code);
 };
 
-
 function submitForm() {
   cy.getIframeBody()
-    .find("div#validForm")
-    .find("p.oreonbutton")
+    .find('div#validForm')
+    .find('p.oreonbutton')
     .find('.btc.bt_success[name="submitA"]')
     .click();
 }
 
-const CreateOrUpdateTrapGroup = (body: TrapGroup): Cypress.Chainable => {
-  cy.waitForElementInIframe("#main-content", 'input[name="name"]');
-  cy.getIframeBody().find('input[name="name"]').clear().type(body.name);
-  cy.getIframeBody().find('span[class="clearAllSelect2"]').click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').click();
-  cy.wait('@listTraps');
-  cy.getIframeBody().find(`div[title="${body.traps[0]}"]`).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').click();
-  cy.getIframeBody().find(`div[title="${body.traps[1]}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
-};
-
-interface TrapGroup {
-  name: string,
-  traps: string[]
-}
-
-export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration, CreateOrUpdateTrapGroup };
+export { submitForm, TrapsSNMPConfiguration, UpdateTrapsSNMPConfiguration };

@@ -33,7 +33,6 @@ import {
 import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
   labelHostCategory,
@@ -54,7 +53,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
-import { getDataProperty } from '../utils';
+import { getDataProperty, getIsMetaServiceSelected } from '../utils';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;

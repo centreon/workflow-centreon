@@ -1,7 +1,7 @@
 import { EmptyRow } from '../Row/EmptyRow';
 
 interface EmptyResultProps {
-  label: string | JSX.Element;
+  label: string;
 }
 
 const EmptyResult = ({ label }: EmptyResultProps): JSX.Element => (

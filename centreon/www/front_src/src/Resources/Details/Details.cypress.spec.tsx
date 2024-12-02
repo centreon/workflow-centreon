@@ -56,7 +56,7 @@ import {
   labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
-  labelStickyForAnyNonOkStatus,
+  labelSticky,
   labelTimezone,
   labelTo,
   labelYourCommentSent
@@ -391,7 +391,7 @@ describe('Details', () => {
     cy.contains(labelComment).should('be.visible');
     cy.contains(labelNotify).should('be.visible');
     cy.contains(labelNotifyHelpCaption).should('be.visible');
-    cy.contains(labelStickyForAnyNonOkStatus);
+    cy.contains(labelSticky);
 
     cy.makeSnapshot(
       'displays the acknowledgment modal when the "Acknowledge" button is clicked'

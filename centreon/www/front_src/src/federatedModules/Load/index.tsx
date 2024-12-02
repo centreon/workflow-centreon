@@ -1,7 +1,7 @@
 import { ReactNode, Suspense, lazy, useMemo } from 'react';
 
 import { importRemote } from '@module-federation/utilities';
-import { isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 
 import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
@@ -41,13 +41,16 @@ export const Remote = ({
   const Component = useMemo(
     () =>
       lazy(() =>
-        importRemote({
-          bustRemoteEntryCache: false,
-          module: component,
-          remoteEntryFileName: remoteEntry,
-          scope: moduleFederationName,
-          url: remoteUrl ?? `./${prefix}/${moduleName}/static`
-        })
+        equals(window.Cypress?.testingType, 'component') &&
+        process.env.NODE_ENV !== 'production'
+          ? import(`www/widgets/src/${moduleFederationName}`)
+          : importRemote({
+              bustRemoteEntryCache: false,
+              module: component,
+              remoteEntryFileName: remoteEntry,
+              scope: moduleFederationName,
+              url: remoteUrl ?? `./${prefix}/${moduleName}/static`
+            })
       ),
     [component, moduleName, remoteEntry, moduleFederationName, remoteUrl]
   );

@@ -1229,9 +1229,7 @@ class CentreonGraphNg
                 return htmlentities($defaultValue, ENT_QUOTES, "UTF-8");
             }
         }
-
-        return '';
-    }
+    } // FIXME return '' ??
 
     /**
      * Get curve color

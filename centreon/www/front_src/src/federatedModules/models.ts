@@ -1,5 +1,4 @@
 import type { SelectEntry } from '@centreon/ui';
-import { ComponentType, LazyExoticComponent } from 'react';
 
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
@@ -17,7 +16,6 @@ export interface FederatedModule {
   preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
-  Component?: LazyExoticComponent<ComponentType<{ [key: string]: unknown }>>;
 }
 
 export interface PageComponent {

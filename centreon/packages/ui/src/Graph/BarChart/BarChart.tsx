@@ -38,7 +38,6 @@ export interface BarChartProps
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  skipIntersectionObserver?: boolean;
 }
 
 const BarChart = ({
@@ -58,8 +57,7 @@ const BarChart = ({
   barStyle = {
     opacity: 1,
     radius: 0.2
-  },
-  skipIntersectionObserver
+  }
 }: BarChartProps): JSX.Element => {
   const { adjustedData } = useChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -95,7 +93,6 @@ const BarChart = ({
               thresholds={thresholds}
               tooltip={tooltip}
               width={width}
-              skipIntersectionObserver={skipIntersectionObserver}
             />
           )}
         </ParentSize>

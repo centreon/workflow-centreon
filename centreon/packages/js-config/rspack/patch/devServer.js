@@ -13,7 +13,9 @@ const externalInterface = Object.keys(interfaces).find(
     !process.env.IS_STATIC_PORT_FORWARDED
 );
 
-const devServerAddress = 'localhost';
+const devServerAddress = externalInterface
+  ? interfaces[externalInterface][0].address
+  : 'localhost';
 
 const publicPath = `http://${devServerAddress}:${devServerPort}/static/`;
 

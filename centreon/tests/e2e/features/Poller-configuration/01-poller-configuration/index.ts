@@ -16,13 +16,17 @@ import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
-beforeEach(() => {
+before(() => {
   cy.startContainers();
+
   cy.addCheckCommand({
-      command: 'echo "Post command"',
-      enableShell: true,
-      name: "post_command",
+    command: 'echo "Post command"',
+    enableShell: true,
+    name: 'post_command'
   });
+});
+
+beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -199,11 +203,11 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 });
 
 Then('no poller names are displayed', () => {
-  cy.get('iframe#main-content')
-        .its('0.contentDocument.body')
-    .find('form span[class="selection"]')
-    .eq(0)
-    .should('have.value', '');
+    cy.waitForElementInIframe('#main-content', 'span.selection span.select2-selection--multiple input[placeholder="Pollers"]').then(() => {
+      cy.getIframeBody()
+        .find('span.selection span.select2-selection--multiple input[placeholder="Pollers"]')
+        .should('have.value', '');
+    });
 });
 
 Then(
@@ -255,6 +259,6 @@ Then('the configuration is not generated on selected pollers', () => {
   checkIfConfigurationIsNotExported();
 });
 
-afterEach(() => {
+after(() => {
   cy.stopContainers();
 });

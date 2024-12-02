@@ -25,7 +25,7 @@ const AreaIndicator = ({
       data-depth={depth}
       style={{ height, width }}
     >
-      {/* biome-ignore lint/a11y: */}
+      {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label>{name}</label>
       {children}
     </div>

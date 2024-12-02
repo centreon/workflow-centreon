@@ -1,7 +1,8 @@
-import type { StorybookConfig } from "@storybook/react-vite";
 import { dirname, join } from "path";
+import type { StorybookConfig } from "@storybook/react-vite";
 import remarkGfm from "remark-gfm";
 import turbosnap from 'vite-plugin-turbosnap';
+import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -33,7 +34,6 @@ const config: StorybookConfig = {
   docs: {},
   core: {},
   async viteFinal(config, { configType }) {
-    const { mergeConfig } = await import('vite');
     return mergeConfig(config, {
       plugins: configType === 'PRODUCTION' ? [turbosnap({ rootDir: process.cwd() })] : [],
     });
