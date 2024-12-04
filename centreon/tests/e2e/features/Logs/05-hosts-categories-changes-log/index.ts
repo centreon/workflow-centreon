@@ -2,7 +2,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import categories from '../../../fixtures/services/category.json';
+import categories from '../../../fixtures/host-categories/category.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -25,20 +25,20 @@ Given('a user is logged in a Centreon server via APIv2', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
-When('an apiV2 call is made to "Add" a service category', () => {
+When('an apiV2 call is made to "Add" a host category', () => {
   cy.addSubjectViaAPIv2(
     categories.default,
-    '/centreon/api/latest/configuration/services/categories'
+    '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
 Then(
-  'a new service category is displayed on the service categories page',
+  'a new host category is displayed on the host categories page',
   () => {
     cy.navigateTo({
       page: 'Categories',
       rootItemNumber: 3,
-      subMenu: 'Services'
+      subMenu: 'Hosts'
     });
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
@@ -52,7 +52,7 @@ Then(
 );
 
 Then(
-  'a new "ADDED" line of log is getting added to the page Administration > Logs',
+  'a new "Added" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -71,7 +71,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'hostcategories');
   }
 );
 
@@ -89,30 +89,31 @@ Then(
       .should('contain.text', categories.default.name);
     cy.getIframeBody().contains('td', 'Create by admin').should('exist');
     cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'sc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'sc_name', '', categories.default.name);
-    cy.checkLogDetails(1, 3, 'sc_alias', '', categories.default.alias);
+    cy.checkLogDetails(1, 1, 'hc_activate', '', '1');
+    cy.checkLogDetails(1, 2, 'hc_comment', '', categories.default.comment);
+    cy.checkLogDetails(1, 3, 'hc_name', '', categories.default.name);
+    cy.checkLogDetails(1, 4, 'hc_alias', '', categories.default.alias);
   }
 );
 
-Given('a service category is configured via APIv2', () => {
+Given('a host category is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
     categories.default,
-    '/centreon/api/latest/configuration/services/categories'
+    '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
 When(
-  'an apiV2 call is made to "Delete" the configured service category',
+  'an apiV2 call is made to "Delete" the configured host category',
   () => {
     cy.deleteSubjectViaAPIv2(
-      '/centreon/api/latest/configuration/services/categories/5'
+      '/centreon/api/latest/configuration/hosts/categories/1'
     );
   }
 );
 
 Then(
-  'a new "DELETED" line of log is getting added to the page Administration > Log',
+  'a new "Deleted" line of log is getting added to the page Administration > Log',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -131,32 +132,19 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'hostcategories');
   }
 );
 
-When('the user changes some properties of the configured service category from UI', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${categories.default.name}")`
-  );
-  cy.getIframeBody()
-    .contains('a', categories.default.name)
-    .click();
-  cy.getIframeBody().waitForElementInIframe('#main-content', 'input[name="sc_name"]');
-  cy.getIframeBody().find('input[name="sc_name"]').clear().type(categories['service-category-changed'].name);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
-  cy.wait('@getTimeZone');
+When('an APIv2 call is made to "Update" the configured host category', () => {
+    cy.updateSubjectViaAPIv2(
+        categories.forTest,
+        '/centreon/api/latest/configuration/hosts/categories/1'
+    );
 });
 
 Then(
-  'a new "CHANGED" line of log is getting added to the page Administration > Logs',
+  'a new "Changed" line of log is getting added to the page Administration > Logs',
   () => {
     cy.navigateTo({
       page: 'Logs',
@@ -175,14 +163,14 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'hostcategories');
   }
 );
 
 Then(
-  'the informations of the log are the same as the changed properties',
+  'the informations of the log are the same as those passed to te "PUT" api call',
   () => {
-    cy.getIframeBody().contains(categories['service-category-changed'].name).click();
+    cy.getIframeBody().contains(categories.forTest.name).click();
     cy.waitForElementInIframe(
       '#main-content',
       'a[href="./main.php?p=508"].btc.bt_success'
@@ -190,41 +178,29 @@ Then(
     cy.getIframeBody()
       .find('td.ListColHeaderCenter')
       .eq(0)
-      .should('contain.text', categories['service-category-changed'].name);
+      .should('contain.text', categories.forTest.name);
     cy.getIframeBody().contains('td', 'Change by admin').should('exist');
     cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      2,
-      'sc_name',
-      categories.default.name,
-      categories['service-category-changed'].name
-    );
+    cy.checkLogDetails(1, 1, 'hc_comment', categories.default.comment, categories.forTest.comment);
+    cy.checkLogDetails(1, 2, 'hc_name', categories.default.name, categories.forTest.name);
+    cy.checkLogDetails(1, 3, 'hc_alias', categories.default.alias, categories.forTest.alias);
   }
 );
 
-Given('an enabled service category is configured via APIv2', () => {
+Given('an enabled host category is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
     categories.default,
-    '/centreon/api/latest/configuration/services/categories'
+    '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
 When(
-  'the user disables the configured service category from UI',
+  'an APIv2 call is made to "Disable" the configured host category',
   () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
-      cy.wait('@getTimeZone');
-      cy.waitForElementInIframe(
-        '#main-content',
-        `a:contains("${categories.default.name}")`
-      );
-      cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
-      cy.wait('@getTimeZone');
+    cy.updateSubjectViaAPIv2(
+        categories.disabled,
+        '/centreon/api/latest/configuration/hosts/categories/1'
+    );
   }
 );
 
@@ -248,33 +224,25 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'hostcategories');
   }
 );
 
-Given('a disabled service category is configured via APIv2', () => {
+Given('a disabled host category is configured via APIv2', () => {
   cy.addSubjectViaAPIv2(
-    categories['service-category-changed'],
-    '/centreon/api/latest/configuration/services/categories'
+    categories.disabled,
+    '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
 When(
-  'the user enables the configured service category from UI',
+  'an APIv2 call is made to "Enable" the disabled host category',
   () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
-      cy.wait('@getTimeZone');
-      cy.waitForElementInIframe(
-        '#main-content',
-        `a:contains("${categories.default.name}")`
-      );
-      cy.getIframeBody().find('img[alt="Enabled"]').eq(2).click();
-      cy.wait('@getTimeZone');
-  }
+    cy.updateSubjectViaAPIv2(
+        categories.default,
+        '/centreon/api/latest/configuration/hosts/categories/1'
+    );
+}
 );
 
 Then(
@@ -297,6 +265,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'hostcategories');
   }
 );
