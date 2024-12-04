@@ -41,7 +41,6 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       enable_qg: ${{ steps.routing-mode.outputs.enable_qg }}
-      additional_params: ${{ steps.routing-mode.outputs.additional_params }}
 
     steps:
       - name: Set routing mode
@@ -52,16 +51,10 @@ jobs:
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
 
           # TODO to absorb from a flat file
-          FILE_FILTER="!**/test*/**,!**/features/**"
+          # FILE_FILTER="!**/test*/**,!**/features/**"
 
           # TODO to disable on stable branches
-          #THRESHOLD=""
-          #if [[ "${{ inputs.stability }}" != "stable" || "${{ inputs.stability }}" != "stable" ]]; then
-            THRESHOLD="--threshold 'sast-critical=1;sast-high=1;"
-          #fi
-          ADD_PARAMS="$THRESHOLD --tags \"${{ github.base_ref || github.ref_name }}\" --project-name \"${{ inputs.module_name }}\"  --file-source \"${{ inputs.module_directory }}/**\" --file-filter \"$FILE_FILTER\""
-          echo "additional_params=$ADD_PARAMS" >> $GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
+          # THRESHOLD="--threshold 'sast-critical=1;sast-high=1;"
 
   pipeline-scan:
     needs: [build]
@@ -74,14 +67,14 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Checkmarx One CLI Action
-        uses: checkmarx/ast-github-action@9fda5a4a2c297608117a5a56af424502a9192e57 # v.2.0.34
+        uses: checkmarx/ast-github-action@b74e8d514feae4ad5ad2b43e72590935bd2daf5f # v.2.0.39
         with:
           base_uri: ${{ secrets.base_uri }}
           cx_tenant: ${{ secrets.cx_tenant }}
           cx_client_id: ${{ secrets.cx_client_id }}
           cx_client_secret: ${{ secrets.cx_client_secret }}
           #additional_params: ${{ needs.build.outputs.additional_params }}
-          additional_params: --threshold 'sast-critical=1;sast-high=1;' --tags "${{ github.base_ref || github.ref_name }}" --project-name "${{ inputs.module_name }}"  --file-source "${{ inputs.module_directory }}/**" --file-filter "!**/test*/**,!**/features/**"
+          additional_params: --tags "${{ github.base_ref || github.ref_name }}" --threshold "sast-critical=1;sast-high=1;" --project-name "${{ inputs.module_name }}"  --file-source "${{ inputs.module_directory }}/**" --file-filter "!**/test*/**,!**/features/**"
 
   create-jira-checkmarx-ticket:
     runs-on: ubuntu-24.04
