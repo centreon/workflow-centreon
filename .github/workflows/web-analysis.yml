@@ -67,8 +67,7 @@ jobs:
 
   checkmarx-analysis:
     needs: [get-environment]
-    if: |
-      github.event.pull_request.draft != 'true'
+    if: github.event.pull_request.draft != 'true'
     uses: ./.github/workflows/checkmarx-analysis.yml
     with:
       module_directory: "centreon"
