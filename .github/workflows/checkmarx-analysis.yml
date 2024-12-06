@@ -54,7 +54,7 @@ jobs:
           # FILE_FILTER="!**/test*/**,!**/features/**"
 
           # TODO to disable on stable branches
-          # THRESHOLD="--threshold 'sast-critical=1;sast-high=1;"
+          # THRESHOLD="--threshold 'sast-critical=1;sast-high=1"
 
   pipeline-scan:
     needs: [build]
