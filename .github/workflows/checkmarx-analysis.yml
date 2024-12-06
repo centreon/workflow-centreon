@@ -73,7 +73,7 @@ jobs:
           cx_tenant: ${{ secrets.cx_tenant }}
           cx_client_id: ${{ secrets.cx_client_id }}
           cx_client_secret: ${{ secrets.cx_client_secret }}
-          additional_params: --tags "${{ github.base_ref || github.ref_name }},tags" --project-tags "${{ github.base_ref || github.ref_name }},project-tags" --project-name "${{ inputs.module_name }}" --file-source "${{ inputs.module_directory }}" --file-filter "!**/test*/**,!**/features/**" --sast-incremental
+          additional_params: --tags "${{ github.base_ref || github.ref_name }},tags" --project-tags "${{ github.base_ref || github.ref_name }},project-tags" --project-name "${{ inputs.module_name }}" --file-source "${{ inputs.module_directory }}" --file-filter "!**/test*/**,!**/features/**" --scan-type "sast,iac-security,sca,api-security" --sast-incremental
 
   create-jira-checkmarx-ticket:
     runs-on: ubuntu-24.04
