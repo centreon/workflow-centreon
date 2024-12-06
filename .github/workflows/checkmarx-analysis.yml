@@ -73,7 +73,7 @@ jobs:
           cx_tenant: ${{ secrets.cx_tenant }}
           cx_client_id: ${{ secrets.cx_client_id }}
           cx_client_secret: ${{ secrets.cx_client_secret }}
-          additional_params: --tags "${{ github.base_ref || github.ref_name }}" --project-tags "${{ github.base_ref || github.ref_name }}" --threshold "sast-critical=1;sast-high=1" --project-name "${{ inputs.module_name }}" --file-source "${{ inputs.module_directory }}/**" --file-filter "!**/test*/**,!**/features/**" --scs-repo-url "https://github.com/${{ github.repository }}" --scs-repo-token "${{ github.token }}"
+          additional_params: --tags "${{ github.base_ref || github.ref_name }}" --project-tags "${{ github.base_ref || github.ref_name }}" --threshold "sast-critical=1;sast-high=1" --project-name "${{ inputs.module_name }}" --file-source "${{ inputs.module_directory }}" --file-filter "!**/test*/**,!**/features/**" --scs-repo-url "https://github.com/${{ github.repository }}" --scs-repo-token "${{ github.token }}"
 
   create-jira-checkmarx-ticket:
     runs-on: ubuntu-24.04
