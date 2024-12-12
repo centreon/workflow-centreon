@@ -36,6 +36,6 @@
     "commitMessageSuffix": "[SECURITY]"
   },
   "postUpgradeTasks": {
-    "postUpdateOptions" : "pnpmDedupe"
+    "postUpdateOptions" : ["pnpmDedupe"]
   }
 }
