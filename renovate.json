@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "security:only-security-updates"
   ],
   "packageRules": [
     {
@@ -10,20 +11,31 @@
       "enabled": true,
       "schedule": ["* 21-23 * * 1"],
       "labels": ["renovate", "npm"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**"]
+      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**"],
+      "rangeStrategy": "bump",
+      "groupName" : "frontend",
+      "commitMessageSuffix": "[JS]"
     },
     {
       "matchDatasources": ["composer"],
       "matchDepTypes": ["require"],
       "enabled": true,
-      "schedule": ["* 21-23 * * 1"],
+      "schedule": ["* 19-21 * * 1"],
       "labels": ["renovate", "composer"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**"]
+      "ignorePaths": ["**/test*/**", "**/Test*/**"],
+      "rangeStrategy": "bump",
+      "groupName" : "backend",
+      "commitMessageSuffix": "[PHP]"
     }
   ],
   "vulnerabilityAlerts": {
-    "enabled": true
+    "schedule": ["* 2-5 * * 1"],
+    "enabled": true,
+    "vulnerabilityFixStrategy": "highest",
+    "labels": ["renovate", "area/security"],
+    "commitMessageSuffix": "[SECURITY]"
   },
-  "osvVulnerabilityAlerts": true
+  "postUpgradeTasks": {
+    "postUpdateOptions" : "pnpmDedupe"
+  }
 }
-
