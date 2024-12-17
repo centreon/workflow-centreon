@@ -1,15 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    "security:only-security-updates"
+    "config:recommended"
   ],
   "packageRules": [
     {
       "matchDatasources": ["npm"],
       "matchDepTypes": ["dependencies"],
       "enabled": true,
-      "schedule": ["* 21-23 * * 1"],
+      "schedule": ["0 4 * * 3"],
       "labels": ["renovate", "npm"],
       "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**"],
       "rangeStrategy": "bump",
@@ -20,7 +19,7 @@
       "matchDatasources": ["composer"],
       "matchDepTypes": ["require"],
       "enabled": true,
-      "schedule": ["* 19-21 * * 1"],
+      "schedule": ["0 4 * * 3"],
       "labels": ["renovate", "composer"],
       "ignorePaths": ["**/test*/**", "**/Test*/**"],
       "rangeStrategy": "bump",
@@ -29,7 +28,7 @@
     }
   ],
   "vulnerabilityAlerts": {
-    "schedule": ["* 2-5 * * 1"],
+    "schedule": ["0 4 * * 3"],
     "enabled": true,
     "vulnerabilityFixStrategy": "highest",
     "labels": ["renovate", "area/security"],
