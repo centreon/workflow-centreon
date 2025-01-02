@@ -8,7 +8,7 @@
       "matchDatasources": ["npm"],
       "matchDepTypes": ["dependencies"],
       "enabled": true,
-      "schedule": ["0 4 * * 3"],
+      "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "npm"],
       "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**"],
       "rangeStrategy": "bump",
@@ -19,7 +19,7 @@
       "matchDatasources": ["composer"],
       "matchDepTypes": ["require"],
       "enabled": true,
-      "schedule": ["0 4 * * 3"],
+      "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "composer"],
       "ignorePaths": ["**/test*/**", "**/Test*/**"],
       "rangeStrategy": "bump",
@@ -28,7 +28,7 @@
     }
   ],
   "vulnerabilityAlerts": {
-    "schedule": ["0 4 * * 3"],
+    "schedule": ["* 4 * * 1"],
     "enabled": true,
     "vulnerabilityFixStrategy": "highest",
     "labels": ["renovate", "area/security"],
