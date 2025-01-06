@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "ignorePaths": [".github"/],
   "packageRules": [
     {
       "matchDatasources": ["npm"],
@@ -10,7 +11,7 @@
       "enabled": true,
       "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "npm"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**", ".github"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**", ".github/"],
       "rangeStrategy": "bump",
       "groupName" : "frontend",
       "commitMessageSuffix": "[JS]"
@@ -21,7 +22,7 @@
       "enabled": true,
       "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "composer"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", ".github"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", ".github/"],
       "rangeStrategy": "bump",
       "groupName" : "backend",
       "commitMessageSuffix": "[PHP]"
