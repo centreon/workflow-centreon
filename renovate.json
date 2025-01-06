@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "ignorePaths": [".github"/],
+  "ignorePaths": [".github/"],
   "packageRules": [
     {
       "matchDatasources": ["npm"],
