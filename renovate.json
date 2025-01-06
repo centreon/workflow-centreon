@@ -10,7 +10,7 @@
       "enabled": true,
       "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "npm"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**", ".github"],
       "rangeStrategy": "bump",
       "groupName" : "frontend",
       "commitMessageSuffix": "[JS]"
@@ -21,7 +21,7 @@
       "enabled": true,
       "schedule": ["* 4 * * 1"],
       "labels": ["renovate", "composer"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", ".github"],
       "rangeStrategy": "bump",
       "groupName" : "backend",
       "commitMessageSuffix": "[PHP]"
