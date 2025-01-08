@@ -394,7 +394,7 @@ jobs:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 20
           cache: pnpm
@@ -508,14 +508,14 @@ jobs:
 
       - name: Upload HTML Reports
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: newman-${{ inputs.os }}-html-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/newman/
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: centreon/tests/rest_api/postman_summaries/*.json
@@ -537,7 +537,7 @@ jobs:
         shell: bash
 
       - name: Download Artifacts
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           pattern: newman-${{ inputs.os }}-test-reports-*
           path: newman-json-test-reports
@@ -791,7 +791,7 @@ jobs:
 
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         with:
           name: newman-${{ inputs.os }}-html-reports
