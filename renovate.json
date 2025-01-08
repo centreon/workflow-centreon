@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "ignorePaths": [".github/"],
+  "packageRules": [
+    {
+      "matchDatasources": ["npm"],
+      "matchDepTypes": ["dependencies"],
+      "enabled": true,
+      "schedule": ["* 4 * * 1-5"],
+      "labels": ["renovate", "npm"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**", ".github/"],
+      "rangeStrategy": "bump",
+      "groupName" : "frontend",
+      "commitMessageSuffix": "[JS]"
+    },
+    {
+      "matchDatasources": ["composer"],
+      "matchDepTypes": ["require"],
+      "enabled": true,
+      "schedule": ["* 4 * * 1-5"],
+      "labels": ["renovate", "composer"],
+      "ignorePaths": ["**/test*/**", "**/Test*/**", ".github/"],
+      "rangeStrategy": "bump",
+      "groupName" : "backend",
+      "commitMessageSuffix": "[PHP]"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "schedule": ["* 4 * * 1"],
+    "enabled": true,
+    "vulnerabilityFixStrategy": "highest",
+    "labels": ["renovate", "area/security"],
+    "commitMessageSuffix": "[SECURITY]"
+  },
+  "postUpgradeTasks": {
+    "postUpdateOptions" : ["pnpmDedupe"]
+  }
+}
