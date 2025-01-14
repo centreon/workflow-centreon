@@ -33,6 +33,7 @@
     "enabled": true,
     "vulnerabilityFixStrategy": "highest",
     "labels": ["renovate", "area/security"],
+    "matchDepTypes": ["require", "dependencies"],
     "commitMessageSuffix": "[SECURITY]"
   },
   "postUpgradeTasks": {
