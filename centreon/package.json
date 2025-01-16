@@ -85,7 +85,7 @@
     "resolve-url-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "swc-loader": "^0.2.6",
-    "swc-plugin-coverage-instrument": "^0.0.24",
+    "swc-plugin-coverage-instrument": "^0.0.25",
     "typescript": "^5.5.4",
     "webpack-merge": "^6.0.1"
   },
