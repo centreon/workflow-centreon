@@ -17,7 +17,7 @@
     "enabled": true,
     "schedule": "* * * * 1"
   },
-  "prConcurrentLimit": 30,
+  "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
   "schedule": [
     "* * * * 1-5"
