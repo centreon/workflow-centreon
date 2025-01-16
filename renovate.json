@@ -6,38 +6,41 @@
     ":ignoreModulesAndTests"
   ],
   "ignorePaths": [
+    "**/test*/**",
+    "**/Test*/**",
+    "**/lighthouse/**",
     ".github/"
+  ],
+  "rebaseWhen": "conflicted",
+  "automerge": false,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": "* * * * 1"
+  },
+  "prConcurrentLimit": 30,
+  "prHourlyLimit": 0,
+  "schedule": [
+    "* * * * 1-5"
   ],
   "timezone": "Europe/Paris",
   "packageRules": [
     {
-      "matchDatasources": [
+      "matchManagers": [
         "npm"
       ],
       "matchDepTypes": [
         "dependencies"
       ],
-      "enabled": true,
-      "schedule": [
-        "* * * * 1-5"
-      ],
       "labels": [
         "renovate",
         "npm"
       ],
-      "ignorePaths": [
-        "**/test*/**",
-        "**/Test*/**",
-        "**/lighthouse/**",
-        ".github/"
-      ],
       "rangeStrategy": "bump",
-      "commitMessageSuffix": "[JS]"
+      "commitMessageSuffix": "[JS]",
+      "groupName": "frontend"
     }
   ],
-  "postUpgradeTasks": {
-    "postUpdateOptions": [
-      "pnpmDedupe"
-    ]
-  }
+  "postUpdateOptions": [
+    "pnpmDedupe"
+  ]
 }
