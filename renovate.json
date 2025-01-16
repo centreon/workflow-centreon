@@ -29,7 +29,7 @@
     }
   ],
   "vulnerabilityAlerts": {
-    "schedule": ["* 0-8 * * 1"],
+    "schedule": ["* 0-9 * * 1"],
     "enabled": true,
     "vulnerabilityFixStrategy": "highest",
     "labels": ["renovate", "area/security"],
