@@ -3,39 +3,75 @@
   "extends": [
     "config:recommended"
   ],
-  "ignorePaths": [".github/"],
+  "ignorePaths": [
+    ".github/"
+  ],
   "packageRules": [
     {
-      "matchDatasources": ["npm"],
-      "matchDepTypes": ["dependencies"],
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
       "enabled": true,
-      "schedule": ["* 0-8 * * 1-5"],
-      "labels": ["renovate", "npm"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", "**/lighthouse/**", ".github/"],
+      "schedule": [
+        "* 0-8 * * 1-5"
+      ],
+      "labels": [
+        "renovate",
+        "npm"
+      ],
+      "ignorePaths": [
+        "**/test*/**",
+        "**/Test*/**",
+        "**/lighthouse/**",
+        ".github/"
+      ],
       "rangeStrategy": "bump",
-      "groupName" : "frontend",
+      "groupName": "frontend",
       "commitMessageSuffix": "[JS]"
     },
     {
-      "matchDatasources": ["composer"],
-      "matchDepTypes": ["require"],
+      "matchDatasources": [
+        "composer"
+      ],
+      "matchDepTypes": [
+        "require"
+      ],
       "enabled": true,
-      "schedule": ["* 0-8 * * 1-5"],
-      "labels": ["renovate", "composer"],
-      "ignorePaths": ["**/test*/**", "**/Test*/**", ".github/"],
+      "schedule": [
+        "* 0-8 * * 1-5"
+      ],
+      "labels": [
+        "renovate",
+        "composer"
+      ],
+      "ignorePaths": [
+        "**/test*/**",
+        "**/Test*/**",
+        ".github/"
+      ],
       "rangeStrategy": "bump",
-      "groupName" : "backend",
+      "groupName": "backend",
       "commitMessageSuffix": "[PHP]"
     }
   ],
   "vulnerabilityAlerts": {
-    "schedule": ["* 0-8 * * 1"],
+    "schedule": [
+      "* 0-9 * * 1"
+    ],
     "enabled": true,
     "vulnerabilityFixStrategy": "highest",
-    "labels": ["renovate", "area/security"],
+    "labels": [
+      "renovate",
+      "area/security"
+    ],
     "commitMessageSuffix": "[SECURITY]"
   },
   "postUpgradeTasks": {
-    "postUpdateOptions" : ["pnpmDedupe"]
+    "postUpdateOptions": [
+      "pnpmDedupe"
+    ]
   }
 }
