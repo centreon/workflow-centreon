@@ -15,12 +15,12 @@
   "automerge": false,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": "* * * * 1"
+    "schedule": "before 10:00am on Monday"
   },
   "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
   "schedule": [
-    "* * * * 1-5"
+    "before 10:00am every weekday"
   ],
   "timezone": "Europe/Paris",
   "packageRules": [
