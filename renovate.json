@@ -50,14 +50,5 @@
   ],
   "postUpdateOptions": [
     "pnpmDedupe"
-  ],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "schedule": [
-      "before 10:00am on Tuesday"
-    ],
-    "vulnerabilityFixStrategy": "highest",
-    "labels": ["renovate", "area/security"],
-    "commitMessageSuffix": "[SECURITY]"
-  }
+  ]
 }
