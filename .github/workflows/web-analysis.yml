@@ -70,4 +70,6 @@ jobs:
     uses: ./.github/workflows/datadog-analysis.yml
     with:
       module_directory: "centreon"
-      module_name: "centreon-dsm"
+    secrets:
+      dd_app_key: ${{ secrets.DD_APP_KEY }}
+      dd_api_key: ${{ secrets.DD_API_KEY }}
