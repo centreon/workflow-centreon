@@ -1,7 +1,6 @@
 <?php
-
-/**
- * Copyright 2021 Centreon
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
-
-if (!isset($oreon)) {
-    exit();
-}
-
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
-
-$export = './modules/centreon-awie/core/submitExport.php';
-
-// Smarty template initialization
-$path = _MODULE_PATH_ . '/core/templates/';
-$tpl = SmartyBC::createSmartyTemplate($path);
-
-$tpl->assign('formPath', $export);
-$tpl->display('formExport.tpl');
-
-$tata = isset($_GET['topology_page']) ? $_GET['topology_page'] : 'You need to send \'topology_page\' in the request.';
-echo $tata;
