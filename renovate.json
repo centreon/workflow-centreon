@@ -38,6 +38,14 @@
       "rangeStrategy": "bump",
       "commitMessageSuffix": "[JS]",
       "groupName": "frontend"
+    },
+    {
+      "matchManagers": ["composer"],
+      "matchDepTypes": ["require"],
+      "labels": ["renovate", "composer"],
+      "rangeStrategy": "bump",
+      "groupName" : "backend",
+      "commitMessageSuffix": "[PHP]"
     }
   ],
   "postUpdateOptions": [
