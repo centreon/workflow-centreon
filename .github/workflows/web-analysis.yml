@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - run: |
           NIGHTLY_TARGETS=("dev-23.04.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x")
@@ -65,21 +65,11 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  checkmarx-analysis:
+  datadog-analysis:
     needs: [get-environment]
-    if: github.event.pull_request.draft != 'true'
-    uses: ./.github/workflows/checkmarx-analysis.yml
+    uses: ./.github/workflows/datadog-analysis.yml
     with:
       module_directory: "centreon"
-      module_name: "centreon-web"
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      stability: ${{ needs.get-environment.outputs.stability }}
     secrets:
-      base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
-      cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
-      cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
-      cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      dd_app_key: ${{ secrets.DD_APP_KEY }}
+      dd_api_key: ${{ secrets.DD_API_KEY }}

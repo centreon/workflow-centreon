@@ -63,21 +63,11 @@ jobs:
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
-  checkmarx-analysis:
+  datadog-analysis:
     needs: [get-environment]
-    if: github.event.pull_request.draft != 'true'
-    uses: ./.github/workflows/checkmarx-analysis.yml
+    uses: ./.github/workflows/datadog-analysis.yml
     with:
       module_directory: "centreon-dsm"
-      module_name: "centreon-dsm"
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      stability: ${{ needs.get-environment.outputs.stability }}
     secrets:
-      base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
-      cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
-      cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
-      cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      dd_app_key: ${{ secrets.DD_APP_KEY }}
+      dd_api_key: ${{ secrets.DD_API_KEY }}
