@@ -1,0 +1,54 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    ":dependencyDashboard",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":ignoreModulesAndTests"
+  ],
+  "ignorePaths": [
+    "**/test*/**",
+    "**/Test*/**",
+    "**/lighthouse/**",
+    ".github/"
+  ],
+  "rebaseWhen": "conflicted",
+  "automerge": false,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": "before 10:00am on Monday"
+  },
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 0,
+  "schedule": [
+    "before 10:00am every weekday"
+  ],
+  "timezone": "Europe/Paris",
+  "packageRules": [
+    {
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "dependencies"
+      ],
+      "labels": [
+        "renovate",
+        "npm"
+      ],
+      "rangeStrategy": "bump",
+      "commitMessageSuffix": "[JS]",
+      "groupName": "frontend"
+    },
+    {
+      "matchManagers": ["composer"],
+      "matchDepTypes": ["require"],
+      "labels": ["renovate", "composer"],
+      "rangeStrategy": "bump",
+      "groupName" : "backend",
+      "commitMessageSuffix": "[PHP]"
+    }
+  ],
+  "postUpdateOptions": [
+    "pnpmDedupe"
+  ]
+}
