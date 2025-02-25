@@ -423,7 +423,8 @@ scripts:
 overrides:
   rpm:
     depends:
-      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - centreon-common >= ${MAJOR_VERSION}
+      - centreon-common < ${NEXT_MAJOR_VERSION}
       - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
@@ -509,7 +510,8 @@ overrides:
 
   deb:
     depends:
-      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-common (>= ${MAJOR_VERSION}~)"
+      - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
@@ -598,3 +600,6 @@ rpm:
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd

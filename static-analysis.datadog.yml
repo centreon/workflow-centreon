@@ -1,0 +1,18 @@
+rulesets:
+  - php-security
+  - github-actions
+  - java-security
+  - javascript-common-security
+  - javascript-node-security
+  - jsx-react
+  - go-security
+  - python-security
+  - tsx-react
+  - typescript-common-security
+  - typescript-node-security
+  - terraform-aws
+
+ignore:
+  - "**/tests/**"
+  - "**/test/**"
+  - "**/features/**"
