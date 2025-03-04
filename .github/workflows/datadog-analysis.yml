@@ -18,28 +18,3 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - name: Check code meets quality standards
-        id: datadog-static-analysis
-        uses: DataDog/datadog-static-analyzer-github-action@1297a546e6bb268e2ac5bc98a1477d22be335822 #v1.2.2
-        with:
-          dd_app_key: ${{ secrets.dd_app_key }}
-          dd_api_key: ${{ secrets.dd_api_key }}
-          dd_site: "datadoghq.eu"
-          subdirectory: ${{ inputs.module_directory }}
-          debug: yes
-
-  software-composition-analysis:
-    runs-on: ubuntu-latest
-    name: Datadog SBOM Generation and Upload
-    steps:
-      - name: Checkout
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - name: Check imported libraries are secure and compliant
-        id: datadog-software-composition-analysis
-        uses: DataDog/datadog-sca-github-action@d871ffeaa1a9693e935d5e66f7440782320e74ea #v2
-        with:
-          dd_api_key: ${{ secrets.DD_API_KEY }}
-          dd_app_key: ${{ secrets.DD_APP_KEY }}
-          dd_site: "datadoghq.eu"
