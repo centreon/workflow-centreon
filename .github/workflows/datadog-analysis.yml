@@ -1,0 +1,20 @@
+on:
+  workflow_call:
+    inputs:
+      module_directory:
+        required: true
+        type: string
+
+    secrets:
+      dd_app_key:
+        required: true
+      dd_api_key:
+        required: true
+
+jobs:
+  check-quality:
+    runs-on: ubuntu-latest
+    name: Datadog Static Analyzer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
