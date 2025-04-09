@@ -120,7 +120,7 @@ jobs:
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
@@ -134,7 +134,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -142,7 +142,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -196,7 +196,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
@@ -224,7 +224,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -232,7 +232,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
@@ -251,7 +251,7 @@ jobs:
           version: 8
 
       - name: Download Artifacts
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
           path: ${{ inputs.name }}-json-xray-reports
@@ -292,7 +292,7 @@ jobs:
           version: 8
 
       - name: Download Artifacts
-        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
           path: ${{ inputs.name }}-json-reports
@@ -320,7 +320,7 @@ jobs:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact/merge@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}

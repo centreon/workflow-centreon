@@ -197,7 +197,7 @@ jobs:
         shell: bash
 
       - name: Cache vendor directory
-        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ${{ env.base_directory }}/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
