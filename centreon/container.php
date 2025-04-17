@@ -18,7 +18,7 @@
  *
  */
 
-// Creating container
+// Creating container !
 use Pimple\Container;
 
 $dependencyInjector = \Centreon\LegacyContainer::getInstance();
