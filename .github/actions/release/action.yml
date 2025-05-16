@@ -19,6 +19,18 @@ inputs:
   jira_base_url:
     description: "Jira base url"
     required: true
+  release_number:
+    description: "Release number with format YYYYMMDD, input by release manager."
+    required: true
+  release_type:
+    description: "Release type (hotfix or release), input by release manager."
+    required: true
+  release_scope:
+    description: "Release scope (cloud or onprem), input by release manager."
+  release_bundle_tag:
+    description: "New release bundle tag, built from release workflow."
+  release_branch:
+    description: "Release branch holding the version we want to release."
 
 runs:
   using: "composite"
@@ -27,6 +39,31 @@ runs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         fetch-depth: 0
+
+    - name: Get previous release bundle tag
+      id: get_previous_release_bundle_tag
+      run: |
+        set -eux
+        # Check and set release scope
+        if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
+          RELEASE_CLOUD=1
+        else
+          RELEASE_CLOUD=0
+        fi
+        NEW_STABLE_BUNDLE_TAG="${{ inputs.release_bundle_tag }}"
+        PREVIOUS_STABLE_BUNDLE_TAG=""
+        # Get previous and new release bundle tags
+        # Previous release bundle tag
+        if [[ $RELEASE_CLOUD -eq 1 ]]; then
+          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*" | head -n 1)
+        else
+          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*" | head -n 1)
+        fi
+        echo "Previous release bundle was: $PREVIOUS_STABLE_BUNDLE_TAG"
+        echo "New release bundle is: $NEW_STABLE_BUNDLE_TAG"
+        echo "previous_stable_bundle_tag=$PREVIOUS_STABLE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+        echo "new_stable_bundle_tag=$NEW_STABLE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+      shell: bash
 
     - name: Get released versions for components
       run: |
@@ -37,7 +74,7 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a TMP_STABLE_TAGS=()
         declare -a NEW_STABLE_TAGS=()
-        declare -a PREVIOUS_STABLE_TAGS=()
+        declare -a PREVIOUS_STABLE_COMPONENT_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
         RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
@@ -45,6 +82,7 @@ runs:
         MINOR_VERSION=""
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         COMPONENT_DIR=""
+        PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
 
         # Get current stable branch name
         # If MASTER, use root .version
