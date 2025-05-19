@@ -27,10 +27,13 @@ inputs:
     required: true
   release_scope:
     description: "Release scope (cloud or onprem), input by release manager."
+    required: true
   release_bundle_tag:
     description: "New release bundle tag, built from release workflow."
+    required: true
   release_branch:
     description: "Release branch holding the version we want to release."
+    required: true
 
 runs:
   using: "composite"
