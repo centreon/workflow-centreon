@@ -54,10 +54,12 @@ runs:
         else
           RELEASE_CLOUD=0
         fi
+
+        # Define new stable bundle tag
         NEW_STABLE_BUNDLE_TAG="${{ inputs.release_bundle_tag }}"
-        PREVIOUS_STABLE_BUNDLE_TAG=""
 
         # Get previous and new release bundle tags
+        PREVIOUS_STABLE_BUNDLE_TAG=""
         # Previous release bundle tag
         if [[ $RELEASE_CLOUD -eq 1 ]]; then
           PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*" | head -n 1)
@@ -91,7 +93,7 @@ runs:
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
 
-        # Get current stable branch name and major version
+        # Get current stable branch major version (aka previous stable bundle tag)
         # CURRENT_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
         # CURRENT_STABLE_BRANCH_MAJOR_VERSION comes from component .version file in the latest release bundle tag
         # Get .version MAJOR var content from ref pointed by the last release bundle tag
@@ -102,14 +104,21 @@ runs:
         for component in ${COMPONENTS_OSS[@]}; do
           #MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           #MINOR_VERSION=$(grep -E "MINOR" .version | cut -d '=' -f2)
-          MAJOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version |grep MAJOR | cut -d '=' -f2)
-          MINOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version.$component |grep MINOR | cut -d '=' -f2)
+
+          # get PREVIOUS_MAJOR_VERSION and PREVIOUS_MINOR_VERSION
+          PREVIOUS_MAJOR_VERSION=$(git show $PREVIOUS_STABLE_BUNDLE_TAG:.version |grep MAJOR | cut -d '=' -f2)
+          PREVIOUS_MINOR_VERSION=$(git show $PREVIOUS_STABLE_BUNDLE_TAG:.version.$component |grep MINOR | cut -d '=' -f2)
+
+          # Get NEW MAJOR_VERSION and NEW_MINOR_VERSION
+          NEW_MAJOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version |grep MAJOR | cut -d '=' -f2)
+          NEW_MINOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version.$component |grep MINOR | cut -d '=' -f2)
+
           # Previous stable tags array
           #PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
-          PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-parse "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-parse "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1))
 
           # New stable tags array
-          TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
+          TMP_STABLE_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
         done
 
         echo "Previous releases were: ${PREVIOUS_STABLE_COMPONENT_TAGS[*]}"
@@ -138,7 +147,7 @@ runs:
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
-        echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
+        # echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV" # should be removed
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
       shell: bash
 
