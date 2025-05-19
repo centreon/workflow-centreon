@@ -47,6 +47,7 @@ runs:
       id: get_previous_release_bundle_tag
       run: |
         set -eux
+
         # Check and set release scope
         if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
           RELEASE_CLOUD=1
@@ -55,6 +56,7 @@ runs:
         fi
         NEW_STABLE_BUNDLE_TAG="${{ inputs.release_bundle_tag }}"
         PREVIOUS_STABLE_BUNDLE_TAG=""
+
         # Get previous and new release bundle tags
         # Previous release bundle tag
         if [[ $RELEASE_CLOUD -eq 1 ]]; then
@@ -62,8 +64,10 @@ runs:
         else
           PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*" | head -n 1)
         fi
+
         echo "Previous release bundle was: $PREVIOUS_STABLE_BUNDLE_TAG"
         echo "New release bundle is: $NEW_STABLE_BUNDLE_TAG"
+
         echo "previous_stable_bundle_tag=$PREVIOUS_STABLE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
         echo "new_stable_bundle_tag=$NEW_STABLE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
       shell: bash
