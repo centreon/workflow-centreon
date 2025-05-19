@@ -115,7 +115,7 @@ runs:
 
           # Previous stable tags array
           #PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
-          PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-parse "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1))
 
           # New stable tags array
           TMP_STABLE_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
