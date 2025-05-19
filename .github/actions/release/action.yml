@@ -162,14 +162,14 @@ runs:
 
         # Add new stable release bundle tag to release branch
         echo "::notice::Tagging branch ${{ inputs.release_branch }} with ${{ inputs.release_bundle_tag }}."
-        git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}" ${{ inputs.release_branch }}
+        git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}" origin/${{ inputs.release_branch }}
         git push --follow-tags
         # Add new component release tags on release branch for each release components
         # Abort if no tags or existing tag
         echo "Creating release tags on branch ${{ inputs.release_branch }}."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
-            git tag -a "$TAG" -m "$TAG" ${{ inputs.release_branch }}
+            git tag -a "$TAG" -m "$TAG" origin/${{ inputs.release_branch }}
             git push --follow-tags
             git status
             echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."
