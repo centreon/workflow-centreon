@@ -20,14 +20,14 @@ on:
         default: 'release' # Default is release
         type: choice
         options:
-        - hotfix
-        - release
+          - hotfix
+          - release
       release_scope:
         description: 'Release scope, affects context of release action'
         type: choice
         options:
-        - cloud
-        - onprem
+          - cloud
+          - onprem
 
 jobs:
   check-inputs:
