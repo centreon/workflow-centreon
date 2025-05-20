@@ -92,7 +92,7 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
-        $PREVIOUS_STABLE_COMPONENT_TAG=""
+        PREVIOUS_STABLE_COMPONENT_TAG=""
 
         # Get current stable branch major version (aka previous stable bundle tag)
         # CURRENT_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
