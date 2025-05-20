@@ -121,7 +121,7 @@ runs:
           if [ git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1 ]; then
             PREVIOUS_STABLE_COMPONENT_TAG=$(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1)
             PREVIOUS_STABLE_COMPONENT_TAGS+=("$PREVIOUS_STABLE_COMPONENT_TAG")
-            echo " echo "Previous tag $PREVIOUS_STABLE_COMPONENT_TAG was found for $component, adding to PREVIOUS_STABLE_COMPONENT_TAGS list."
+            echo "Previous tag $PREVIOUS_STABLE_COMPONENT_TAG was found for $component, adding to PREVIOUS_STABLE_COMPONENT_TAGS list."
           else
             echo "No previous tag was found for $component, skipping."
           fi
