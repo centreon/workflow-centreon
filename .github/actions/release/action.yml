@@ -87,7 +87,7 @@ runs:
         declare -a PREVIOUS_STABLE_COMPONENT_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
-        RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
+        #RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
         MAJOR_VERSION=""
         MINOR_VERSION=""
         COMPONENT_DIR=""
