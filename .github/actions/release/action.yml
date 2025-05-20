@@ -92,6 +92,7 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
+        $PREVIOUS_STABLE_COMPONENT_TAG=""
 
         # Get current stable branch major version (aka previous stable bundle tag)
         # CURRENT_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
@@ -117,7 +118,13 @@ runs:
           # If previous tag is found in previous release bundle for component, add to array
           # If previous tag is not found in previous release bundle for component, skip and continue
           #PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
-          PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          if [ git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1 ]; then
+            PREVIOUS_STABLE_COMPONENT_TAG=$(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1)
+            PREVIOUS_STABLE_COMPONENT_TAGS+=("$PREVIOUS_STABLE_COMPONENT_TAG")
+            echo " echo "Previous tag $PREVIOUS_STABLE_COMPONENT_TAG was found for $component, adding to PREVIOUS_STABLE_COMPONENT_TAGS list."
+          else
+            echo "No previous tag was found for $component, skipping."
+          fi
 
           # New stable tags array
           TMP_STABLE_COMPONENT_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
