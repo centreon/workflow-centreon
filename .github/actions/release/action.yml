@@ -94,6 +94,13 @@ runs:
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
         PREVIOUS_STABLE_COMPONENT_TAG=""
 
+        # Check and set release scope
+        if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
+          RELEASE_CLOUD=1
+        else
+          RELEASE_CLOUD=0
+        fi
+
         # Get previous stable branch major version (aka previous stable bundle tag)
         # PREVIOUS_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
         # PREVIOUS_STABLE_BRANCH_MAJOR_VERSION comes from component .version file in the latest release bundle tag
