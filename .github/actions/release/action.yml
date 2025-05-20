@@ -102,6 +102,8 @@ runs:
         echo "Current stable major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
         # Get previous and new version tags for components
+        # If release: all component tags should be checked and compared
+        # If hotfix: only the hotfix components tags should be checked and compared
         for component in ${COMPONENTS_OSS[@]}; do
           #MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           #MINOR_VERSION=$(grep -E "MINOR" .version | cut -d '=' -f2)
@@ -117,13 +119,10 @@ runs:
           # Previous stable tags array
           # If previous tag is found in previous release bundle for component, add to array
           # If previous tag is not found in previous release bundle for component, skip and continue
-          #PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
-          if [ git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1 ]; then
-            PREVIOUS_STABLE_COMPONENT_TAG=$(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1)
-            PREVIOUS_STABLE_COMPONENT_TAGS+=("$PREVIOUS_STABLE_COMPONENT_TAG")
-            echo "Previous tag $PREVIOUS_STABLE_COMPONENT_TAG was found for $component, adding to PREVIOUS_STABLE_COMPONENT_TAGS list."
+          if [[ $RELEASE_CLOUD -eq 1 ]]; then
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
           else
-            echo "No previous tag was found for $component, skipping."
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
           fi
 
           # New stable tags array
