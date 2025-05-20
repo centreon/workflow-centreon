@@ -177,8 +177,8 @@ runs:
         echo "Creating release tags on branch ${{ inputs.release_branch }}."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
-            git tag -a "$TAG" -m "$TAG" origin/${{ inputs.release_branch }}
-            git push --follow-tags
+            #git tag -a "$TAG" -m "$TAG" origin/${{ inputs.release_branch }}
+            #git push --follow-tags
             git status
             echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."
           else
@@ -212,7 +212,7 @@ runs:
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -n $TAG ]; then
             echo "Creating GITHUB release with title $TAG for tag $TAG targeting branch ${{ inputs.release_branch }}."
-            gh release create $TAG --target "${{ inputs.release_branch }}" --title "$TAG" --verify-tag
+            #gh release create $TAG --target "${{ inputs.release_branch }}" --title "$TAG" --verify-tag
           else
             echo "::error::Release tag $TAG was empty, could not create github release for $TAG, exiting."
             exit 1
