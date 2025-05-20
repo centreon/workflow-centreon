@@ -81,7 +81,7 @@ runs:
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
-        declare -a TMP_STABLE_TAGS=()
+        declare -a TMP_STABLE_COMPONENT_TAGS=()
         declare -a NEW_STABLE_TAGS=()
         declare -a PREVIOUS_STABLE_COMPONENT_TAGS=()
         SCOPE_VERSION="OSS"
@@ -114,19 +114,21 @@ runs:
           NEW_MINOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version.$component |grep MINOR | cut -d '=' -f2)
 
           # Previous stable tags array
+          # If previous tag is found in previous release bundle for component, add to array
+          # If previous tag is not found in previous release bundle for component, skip and continue
           #PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
           PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag --points-at $(git rev-list -1 "$PREVIOUS_STABLE_BUNDLE_TAG") | grep -E "$component-$PREVIOUS_MAJOR_VERSION.[0-9]+$" | head -n 1))
 
           # New stable tags array
-          TMP_STABLE_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
+          TMP_STABLE_COMPONENT_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
         done
 
         echo "Previous releases were: ${PREVIOUS_STABLE_COMPONENT_TAGS[*]}"
-        echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
+        echo "Temporary new releases are: ${TMP_STABLE_COMPONENT_TAGS[*]}"
 
         # Building final NEW_STABLE_TAGS with the new version tags only
-        # Iterate over elements of TMP_STABLE_TAGS
-        for new_tag in "${TMP_STABLE_TAGS[@]}"; do
+        # Iterate over elements of TMP_STABLE_COMPONENT_TAGS
+        for new_tag in "${TMP_STABLE_COMPONENT_TAGS[@]}"; do
           found=false
           # Iterate over elements of PREVIOUS_STABLE_COMPONENT_TAGS
           for old_tag in "${PREVIOUS_STABLE_COMPONENT_TAGS[@]}"; do
