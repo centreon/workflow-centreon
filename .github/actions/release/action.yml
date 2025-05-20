@@ -128,9 +128,9 @@ runs:
           # If previous tag is found in previous release bundle for component, add to array
           # If previous tag is not found in previous release bundle for component, skip and continue
           if [[ $RELEASE_CLOUD -eq 1 ]]; then
-            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*" | head -n 1))
+            PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*" | head -n 1))
           else
-            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+            PREVIOUS_STABLE_COMPONENT_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
           fi
 
           # New stable tags array
