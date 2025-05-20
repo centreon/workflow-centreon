@@ -67,6 +67,7 @@ runs:
           PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*" | head -n 1)
         fi
 
+        echo "#====#"
         echo "Previous release bundle was: $PREVIOUS_STABLE_BUNDLE_TAG"
         echo "New release bundle is: $NEW_STABLE_BUNDLE_TAG"
 
@@ -80,7 +81,7 @@ runs:
 
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-ha" "centreon-open-tickets" "centreon-web")
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a TMP_STABLE_COMPONENT_TAGS=()
         declare -a NEW_STABLE_TAGS=()
         declare -a PREVIOUS_STABLE_COMPONENT_TAGS=()
@@ -89,17 +90,17 @@ runs:
         RELEASE_CLOUD=0 # (0 = not a release cloud, 1 = release cloud)
         MAJOR_VERSION=""
         MINOR_VERSION=""
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
         PREVIOUS_STABLE_COMPONENT_TAG=""
 
-        # Get current stable branch major version (aka previous stable bundle tag)
-        # CURRENT_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
-        # CURRENT_STABLE_BRANCH_MAJOR_VERSION comes from component .version file in the latest release bundle tag
+        # Get previous stable branch major version (aka previous stable bundle tag)
+        # PREVIOUS_STABLE_BRANCH_MAJOR_VERSION is used to search previous stable tags
+        # PREVIOUS_STABLE_BRANCH_MAJOR_VERSION comes from component .version file in the latest release bundle tag
         # Get .version MAJOR var content from ref pointed by the last release bundle tag
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git show $PREVIOUS_STABLE_BUNDLE_TAG:.version |grep MAJOR | cut -d '=' -f2)
-        echo "Current stable major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
+        PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=$(git show $PREVIOUS_STABLE_BUNDLE_TAG:.version |grep MAJOR | cut -d '=' -f2)
+        echo "#====#"
+        echo "Previous stable major version: $PREVIOUS_STABLE_BRANCH_MAJOR_VERSION"
 
         # Get previous and new version tags for components
         # If release: all component tags should be checked and compared
@@ -120,15 +121,16 @@ runs:
           # If previous tag is found in previous release bundle for component, add to array
           # If previous tag is not found in previous release bundle for component, skip and continue
           if [[ $RELEASE_CLOUD -eq 1 ]]; then
-            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
           else
-            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
           fi
 
           # New stable tags array
           TMP_STABLE_COMPONENT_TAGS+=("$component-$NEW_MAJOR_VERSION.$NEW_MINOR_VERSION")
         done
 
+        echo "#====#"
         echo "Previous releases were: ${PREVIOUS_STABLE_COMPONENT_TAGS[*]}"
         echo "Temporary new releases are: ${TMP_STABLE_COMPONENT_TAGS[*]}"
 
@@ -150,12 +152,13 @@ runs:
           fi
         done
 
+        echo "#====#"
         echo "New tags to be published from new release that were not in previous releases:"
         printf '%s\n' "${NEW_STABLE_TAGS[@]}"
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
-        # echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV" # should be removed
+        # echo "PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV" # should be removed
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
       shell: bash
 
@@ -281,7 +284,7 @@ runs:
     #   run: |
     #     set -eux
 
-    #     MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
+    #     MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION
 
     #     # Webhook url
     #     JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
