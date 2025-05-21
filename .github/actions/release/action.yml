@@ -232,6 +232,29 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
 
+    - name: Clean release / hotfix branch
+      run: |
+        set -eux
+
+        REPO="centreon/centreon"
+        TAG="${{ inputs.release_bundle_tag }}"
+
+        echo "Checking if github release exists before removing release / hotfix branch."
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" \
+          "https://api.github.com/repos/$REPO/releases/tags/$TAG")
+
+        if [[ "$status_code" == "200" ]]; then
+          echo "Release for release bundle tag $TAG exists, removing branch ${{ inputs.release_branch }}."
+          #git push origin --delete ${{ inputs.release_branch }}
+        else
+          echo "Release for release bundle tag $TAG does not exist, aborting."
+          exit 1
+        fi
+
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+
     # - name: Create stable JIRA versions from new release tags
     #   run: |
     #     set -eux
