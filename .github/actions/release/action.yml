@@ -240,9 +240,10 @@ runs:
         REPO="centreon/workflow-centreon"
         TAG="${{ inputs.release_bundle_tag }}"
 
-        echo "Checking if github release exists before removing release / hotfix branch."
+        # Check if release bundle tag was set. It MUST exists before removing any release branch.
+        echo "Checking if github tag exists before removing release / hotfix branch."
         status_code=$(curl -s -o /dev/null -w "%{http_code}" \
-          "https://api.github.com/repos/$REPO/releases/tags/$TAG")
+          "https://api.github.com/repos/$REPO/git/ref/tags/$TAG")
 
         if [[ "$status_code" == "200" ]]; then
           echo "Release for release bundle tag $TAG exists, removing branch ${{ inputs.release_branch }}."
