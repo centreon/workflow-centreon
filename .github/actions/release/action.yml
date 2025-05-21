@@ -236,7 +236,8 @@ runs:
       run: |
         set -eux
 
-        REPO="centreon/centreon"
+        #REPO="centreon/centreon"
+        REPO="centreon/workflow-centreon"
         TAG="${{ inputs.release_bundle_tag }}"
 
         echo "Checking if github release exists before removing release / hotfix branch."
