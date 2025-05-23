@@ -43,6 +43,9 @@ on:
       - "!centreon/tests/**"
       - "!centreon/packages/**"
 
+    tags:
+      - release-cloud-* # Format should always be release-cloud-YYYYMMNN
+
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
