@@ -1263,18 +1263,18 @@ jobs:
           echo "Promote stuff goes here with inputs."
         shell: bash
 
-      - name: Promote ${{ matrix.distrib }} to stable
-        uses: ./.github/actions/promote-to-stable
-        with:
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: web
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      # - name: Promote ${{ matrix.distrib }} to stable
+      #   uses: ./.github/actions/promote-to-stable
+      #   with:
+      #     artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+      #     module: web
+      #     distrib: ${{ matrix.distrib }}
+      #     major_version: ${{ needs.get-environment.outputs.major_version }}
+      #     minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      #     stability: ${{ needs.get-environment.outputs.stability }}
+      #     github_ref_name: ${{ github.ref_name }}
+      #     release_type: ${{ needs.get-environment.outputs.release_type }}
+      #     is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   # set-skip-label:
   #   needs: [get-environment, deliver-deb, deliver-rpm, promote]
