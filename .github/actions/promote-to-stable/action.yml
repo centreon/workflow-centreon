@@ -98,7 +98,7 @@ runs:
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
-            jf rt download $ARTIFACT --flat
+            # jf rt download $ARTIFACT --flat
           done
 
           DRY_RUN_FLAG="--dry-run"
@@ -109,7 +109,7 @@ runs:
           # Upload previously downloaded candidates to TARGET_PATH
           for ARTIFACT_DL in $(dir|grep -E "*.rpm"); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-            jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
+            # jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
 
           # Cleanup before next round of candidates
@@ -159,7 +159,7 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
-          jf rt download $ARTIFACT --flat
+          # jf rt download $ARTIFACT --flat
         done
 
         case "${{ inputs.major_version }}" in
@@ -179,7 +179,7 @@ runs:
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat $DRY_RUN_FLAG
+          # jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat $DRY_RUN_FLAG
         done
 
         rm -f *.deb

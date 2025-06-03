@@ -1139,8 +1139,7 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon'
+      needs.changes.outputs.trigger_delivery == 'true'
 
     strategy:
       matrix:
@@ -1200,7 +1199,6 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
-      github.repository == 'centreon/centreon' &&
       (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
 
     strategy:
@@ -1250,8 +1248,7 @@ jobs:
       (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.repository == 'centreon/centreon'
+      ! contains(needs.*.result, 'cancelled')
     runs-on: centreon-common
     strategy:
       matrix:
@@ -1263,21 +1260,21 @@ jobs:
 
       - name: Promote
         run: |
-          echo "Promote stuff goes here."
+          echo "Promote stuff goes here with inputs."
         shell: bash
 
-      # - name: Promote ${{ matrix.distrib }} to stable
-      #   uses: ./.github/actions/promote-to-stable
-      #   with:
-      #     artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-      #     module: web
-      #     distrib: ${{ matrix.distrib }}
-      #     major_version: ${{ needs.get-environment.outputs.major_version }}
-      #     minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      #     stability: ${{ needs.get-environment.outputs.stability }}
-      #     github_ref_name: ${{ github.ref_name }}
-      #     release_type: ${{ needs.get-environment.outputs.release_type }}
-      #     is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   # set-skip-label:
   #   needs: [get-environment, deliver-deb, deliver-rpm, promote]
