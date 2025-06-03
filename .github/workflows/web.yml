@@ -43,8 +43,7 @@ on:
       - "!centreon/tests/**"
       - "!centreon/packages/**"
     tags:
-      - release-cloud-*
-      - release-onprem-*
+      - centreon-web-*
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
