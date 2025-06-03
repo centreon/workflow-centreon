@@ -42,7 +42,9 @@ on:
       - "!centreon/lighthouse/**"
       - "!centreon/tests/**"
       - "!centreon/packages/**"
-
+    tags:
+      - release-cloud-*
+      - release-onprem-*
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
@@ -512,11 +514,11 @@ jobs:
 
     runs-on: ubuntu-24.04
 
-    container:
-      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
-      credentials:
-        username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-        password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+    # container:
+    #   image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+    #   credentials:
+    #     username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+    #     password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     name: package ${{ matrix.distrib }}
 
