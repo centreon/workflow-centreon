@@ -203,7 +203,7 @@ runs:
 
             git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
             # git push origin --tags
-            git push https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
+            git push https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }} "$TAG"
 
             git status
             echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."
