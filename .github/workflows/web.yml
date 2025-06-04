@@ -43,7 +43,7 @@ on:
       - "!centreon/tests/**"
       - "!centreon/packages/**"
     tags:
-      - centreon-web-*
+      - "centreon-web-*"
 env:
   base_directory: centreon
   widgets_directory: centreon/www/widgets
