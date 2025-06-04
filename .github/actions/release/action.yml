@@ -34,6 +34,9 @@ inputs:
   release_branch:
     description: "Release branch holding the version we want to release."
     required: true
+  centreon_technique_pat:
+    description: "Token used to handle release."
+    required: true
 
 runs:
   using: "composite"
@@ -186,7 +189,8 @@ runs:
         # git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}" origin/${{ inputs.release_branch }}
         # git push --follow-tags
         git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
-        git push origin --tags
+        # git push origin --tags
+        git push https://x-access-token:${{ inputs.centreon_technique_pat}}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
 
         # Add new component release tags on release branch for each release components
         # Abort if no tags or existing tag
@@ -198,7 +202,8 @@ runs:
             # git push --follow-tags
 
             git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
-            git push origin --tags
+            # git push origin --tags
+            git push https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
 
             git status
             echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."

@@ -117,3 +117,4 @@ jobs:
           release_scope: ${{ inputs.release_scope }}
           release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
           release_branch: ${{ inputs.release_branch }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
