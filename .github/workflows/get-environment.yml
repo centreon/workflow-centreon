@@ -466,29 +466,29 @@ jobs:
 
             return matrix;
 
-      - name: Check run
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            // This is required to avoid triggering every component workflow when 
-            // a release bundle tag is set.
+      # - name: Check run
+      #   uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      #   with:
+      #     script: |
+      #       // This is required to avoid triggering every component workflow when
+      #       // a release bundle tag is set.
 
-            // Get the most recent release bundle tag
-            const tag = execSync('git describe --tags --abbrev=0').toString().trim();
-            core.info(`Latest tag: ${tag}`);
+      #       // Get the most recent release bundle tag
+      #       const tag = execSync('git describe --tags --abbrev=0').toString().trim();
+      #       core.info(`Latest tag: ${tag}`);
 
-            // Get the tag message (works for annotated tags)
-            let message = '';
-            try {
-              message = execSync(`git for-each-ref refs/tags/${tag} --format="%(contents)"`).toString().trim();
-            } catch (error) {
-              core.warning(`Could not get tag message for ${tag}: ${error.message}`);
-            }
+      #       // Get the tag message (works for annotated tags)
+      #       let message = '';
+      #       try {
+      #         message = execSync(`git for-each-ref refs/tags/${tag} --format="%(contents)"`).toString().trim();
+      #       } catch (error) {
+      #         core.warning(`Could not get tag message for ${tag}: ${error.message}`);
+      #       }
 
-            core.info(`Latest tag: ${tag}`);
-            core.info(`Latest associated tag message: ${message}`);
-            core.setOutput('tag', tag);
-            core.setOutput('message', message);
+      #       core.info(`Latest tag: ${tag}`);
+      #       core.info(`Latest associated tag message: ${message}`);
+      #       core.setOutput('tag', tag);
+      #       core.setOutput('message', message);
 
       - name: Display info in job summary
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
