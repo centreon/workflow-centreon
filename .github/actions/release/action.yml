@@ -197,7 +197,7 @@ runs:
             # git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG" origin/${{ inputs.release_branch }}
             # git push --follow-tags
 
-            git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
+            git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
             git push origin --tags
 
             git status
