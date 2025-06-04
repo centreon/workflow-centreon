@@ -176,6 +176,10 @@ runs:
       run: |
         set -eux
 
+        # Checkout to release branch
+        git fetch -a -p
+        git checkout ${{ inputs.release_branch }}
+
         # Set git local configuration
         echo "Configuring git."
         git config --global user.email "release@centreon.com"
