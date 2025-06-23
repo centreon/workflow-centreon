@@ -254,13 +254,15 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            const getStability = (branchName) => {
+            const getStability = (ref) => {
+              const refName = ref.replace(/^refs\/(heads|tags)\//, '');
+
               switch (true) {
-                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(branchName):
+                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(refName):
                   return 'unstable';
-                case /(^release.+)|(^hotfix.+)/.test(branchName):
+                case /(^release.+)|(^hotfix.+)/.test(refName):
                   return 'testing';
-                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(branchName):
+                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
                   return 'stable';
                 default:
                   return 'canary';
@@ -348,6 +350,33 @@ jobs:
         run: |
           RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
           if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+            echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          fi
+
+          REF_NAME="${{ github.head_ref || github.ref_name }}"
+          REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
+          RELEASE_TYPE=""
+
+          # Get release type based on ref type
+          # if ref_type is a branch => use prefix of branch name
+          # if ref_type is a tag => use comment associated to the tag
+          if [[ "$REF_TYPE" == "branch" ]]; then
+            BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
+            if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
+              RELEASE_TYPE="$BASE"
+            fi
+          elif [[ "$REF_TYPE" == "tag" ]]; then
+            # Get tag message (requires fetch of tags and history for annotated tags)
+            git fetch --tags --force
+            TAG_MSG=$(git for-each-ref refs/tags/"$REF_NAME" --format='%(contents)')
+            if echo "$TAG_MSG" | grep -q -i 'hotfix'; then
+              RELEASE_TYPE="hotfix"
+            elif echo "$TAG_MSG" | grep -q -i 'release'; then
+              RELEASE_TYPE="release"
+            fi
+          fi
+
+          if [[ -n "$RELEASE_TYPE" ]]; then
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
         shell: bash
