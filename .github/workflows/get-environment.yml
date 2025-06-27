@@ -416,7 +416,7 @@ jobs:
                 console.log("✅ Detected cloud scope.");
                 releaseScope = "cloud";
               } else {
-                console.log("Not a cloud or onprem version.")
+                console.log("Not a cloud or onprem version.");
               }
             }
             // handle if triggering event is a push_tag of a release
