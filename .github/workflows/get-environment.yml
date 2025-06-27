@@ -406,15 +406,16 @@ jobs:
               // if finalTarget branch is anything else => it is not a cloud version
               if (finalTargetBranch === "develop" ) {
                 console.log("✅ Detected cloud scope.");
-                //return true;
                 releaseScope = "cloud";
               } else if (/^dev-\d{2}\.\d{2}\.x$/.test(finalTargetBranch)){
                 console.log("✅ Detected onprem scope.");
-                //return false;
                 releaseScope = "onprem";
               } else if (! currentMajorVersion.match(/\.(04|10)$/)) {
                 console.log("✅ Detected cloud scope.");
                 releaseScope = "cloud";
+              } else if (currentMajorVersion.match(/\.(04|10)$/)) {
+                console.log("✅ Detected onprem scope.");
+                releaseScope = "onprem";
               } else {
                 console.log("Not a cloud or onprem version.");
               }
