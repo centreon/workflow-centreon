@@ -388,49 +388,78 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            const eventName = process.env.GITHUB_EVENT_NAME;
+            const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
+            const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
+            const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
+
+            let releaseScope = "unknown";
+
             // handle if triggering event is a pull_request
-            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+            if (eventName === "pull_request") {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               // if finalTarget branch is develop => it is a cloud version
               // if finalTarget branch is anything else => it is not a cloud version
               if (['develop'].includes(finalTargetBranch)) {
+                console.log("✅ Detected cloud scope.");
                 return true;
               } else {
+                console.log("✅ Detected onprem scope.");
                 return false;
               }
             }
             // handle if triggering event is a push_tag of a release
-            else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
-              // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
-              const release_tag = "${{ github.ref_name }}";
+            // else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
+            else if (eventName === "push" && ref.startsWith("refs/tags/")) {
+              console.log(`🏷️ Tag pushed: ${refName}`);
               // Extract scope (cloud on onprem)
-              const release_scope = tag.split('-')[1];
+              // Format expected: release-cloud-25.05.1 or release-onprem-24.10.0
+              const scope = refName.split('-')[1];
 
-              if (release_scope === "onprem") {
-                console.log("✅ Detected on-prem release scope.");
-                return true;
-              } else if (edition === "cloud") {
-                console.log("✅ Detected cloud release scope.");
-                return false;
+              // Store scope as releaseScope or fail if invalid scope
+              if (scope === "cloud" || scope === "onprem") {
+                releaseScope = scope;
               } else {
-                core.setFailed(`❌ Unknown release scope: ${release_scope}`);
+                core.setFailed(`❌ Unknown scope in tag: ${refName}`);
+                return;
               }
             }
+            // handle if triggering event is a push
+            else if (eventName === "push" && ref.startsWith("refs/heads/")) {
+              const branch = ref.replace("refs/heads/", "");
+              console.log(`🚀 Push to branch: ${branch}`);
 
-            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
-            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+              // compare developMajorVersion and curentMajorVersion
+              const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+              const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
 
-            if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
-              return true;
+              if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
+                releaseScope = "cloud";
+              }
+
+              // If month number is not 04 or 10, it is a cloud version
+              if (! currentMajorVersion.match(/\.(04|10)$/)) {
+                releaseScope = "onprem";
+              }
+            }
+            // in any other case, fail the run
+            else {
+              core.setFailed(`❌ Unsupported event: ${eventName}`);
+              return;
             }
 
-            // If month number is not 04 or 10, it is a cloud version
-            if (! currentMajorVersion.match(/\.(04|10)$/)) {
-              return true;
-            }
+            // Set isCloud if releaseScope value is "cloud"
+            const isCloud = releaseScope === "cloud";
 
-            return false;
+            console.log(`📦 releaseScope: ${releaseScope}`);
+            core.setOutput("releaseScope", releaseScope);
+            core.setOutput("isCloud", isCloud);
+
+            // If isCloud is not true, return false
+            if (!isCloud) {
+              return false;
+            }
 
       - name: Detect linked dev and stable branches
         id: linked_branches
