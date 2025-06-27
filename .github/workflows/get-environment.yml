@@ -629,4 +629,3 @@ jobs:
             }
 
             core.summary.write();
-
