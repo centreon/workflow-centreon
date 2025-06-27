@@ -254,13 +254,15 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            const getStability = (branchName) => {
+            const getStability = (ref) => {
+              const refName = ref.replace(/^refs\/(heads|tags)\//, '');
+
               switch (true) {
-                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(branchName):
+                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(refName):
                   return 'unstable';
-                case /(^release.+)|(^hotfix.+)/.test(branchName):
+                case /(^release.+)|(^hotfix.+)/.test(refName):
                   return 'testing';
-                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(branchName):
+                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
                   return 'stable';
                 default:
                   return 'canary';
@@ -346,8 +348,37 @@ jobs:
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
         run: |
-          RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
-          if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+          # RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
+          # if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+          #   echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          # fi
+
+          # REF_NAME="${{ github.head_ref || github.ref_name }}"
+
+          # Get ref type (branch or tag)
+          REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
+          RELEASE_TYPE=""
+
+          # Get release type based on ref type
+          # if ref_type is a branch => use prefix of branch name
+          # if ref_type is a tag => use comment associated to the tag
+          if [[ "$REF_TYPE" == "branch" ]]; then
+            BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
+            if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
+              RELEASE_TYPE="$BASE"
+            fi
+          elif [[ "$REF_TYPE" == "tag" ]]; then
+            # Get tag message (requires fetch of tags and history for annotated tags)
+            git fetch --tags --force
+            TAG_MSG=$(git for-each-ref refs/tags/"$REF_NAME" --format='%(contents)')
+            if echo "$TAG_MSG" | grep -q -i 'hotfix'; then
+              RELEASE_TYPE="hotfix"
+            elif echo "$TAG_MSG" | grep -q -i 'release'; then
+              RELEASE_TYPE="release"
+            fi
+          fi
+
+          if [[ -n "$RELEASE_TYPE" ]]; then
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
         shell: bash
@@ -357,17 +388,32 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            if ("${{ github.ref_name }}" === "master") {
-              return true;
-            }
-
+            // handle if triggering event is a pull_request
             if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
-              if (['develop', 'master'].includes(finalTargetBranch)) {
+              // if finalTarget branch is develop => it is a cloud version
+              // if finalTarget branch is anything else => it is not a cloud version
+              if (['develop'].includes(finalTargetBranch)) {
                 return true;
-              } else if (/\d{2}\.\d{2}\.x$/.test(finalTargetBranch)) {
+              } else {
                 return false;
+            }
+            // handle if triggering event is a push_tag of a release
+            else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
+              // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
+              const release_tag = "${{ github.ref_name }}";
+              // Extract scope (cloud on onprem)
+              const release_scope = tag.split('-')[1]
+
+              if (release_scope === "onprem") {
+                core.info("✅ Detected on-prem release scope.");
+                return true;
+              } else if (edition === "cloud") {
+                core.info("✅ Detected cloud release scope.");
+                return false;
+              } else {
+                core.setFailed(`❌ Unknown release scope: ${release_scope}`);
               }
             }
 
@@ -466,6 +512,32 @@ jobs:
 
             return matrix;
 
+      # - name: Check run
+      #   uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      #   with:
+      #     script: |
+      #       // This is not  needed as tag triggers only the workflow of the reference
+      #       // pointed by the tag
+      #       // This is required to avoid triggering every component workflow when
+      #       // a release bundle tag is set.
+
+      #       // Get the most recent release bundle tag
+      #       const tag = execSync('git describe --tags --abbrev=0').toString().trim();
+      #       core.info(`Latest tag: ${tag}`);
+
+      #       // Get the tag message (works for annotated tags)
+      #       let message = '';
+      #       try {
+      #         message = execSync(`git for-each-ref refs/tags/${tag} --format="%(contents)"`).toString().trim();
+      #       } catch (error) {
+      #         core.warning(`Could not get tag message for ${tag}: ${error.message}`);
+      #       }
+
+      #       core.info(`Latest tag: ${tag}`);
+      #       core.info(`Latest associated tag message: ${message}`);
+      #       core.setOutput('tag', tag);
+      #       core.setOutput('message', message);
+
       - name: Display info in job summary
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
@@ -516,3 +588,4 @@ jobs:
             }
 
             core.summary.write();
+
