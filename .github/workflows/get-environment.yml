@@ -408,10 +408,10 @@ jobs:
               const release_scope = tag.split('-')[1];
 
               if (release_scope === "onprem") {
-                core.info("✅ Detected on-prem release scope.");
+                console.log("✅ Detected on-prem release scope.");
                 return true;
               } else if (edition === "cloud") {
-                core.info("✅ Detected cloud release scope.");
+                console.log("✅ Detected cloud release scope.");
                 return false;
               } else {
                 core.setFailed(`❌ Unknown release scope: ${release_scope}`);
