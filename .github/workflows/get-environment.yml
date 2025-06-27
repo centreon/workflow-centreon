@@ -404,7 +404,7 @@ jobs:
               // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
               const release_tag = "${{ github.ref_name }}";
               // Extract scope (cloud on onprem)
-              const release_scope = tag.split('-')[1]
+              const release_scope = tag.split('-')[1];
 
               if (release_scope === "onprem") {
                 core.info("✅ Detected on-prem release scope.");
