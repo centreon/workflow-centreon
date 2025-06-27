@@ -393,6 +393,9 @@ jobs:
             const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
             const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
 
+            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+
             let releaseScope = "unknown";
 
             // handle if triggering event is a pull_request
@@ -401,14 +404,19 @@ jobs:
               const finalTargetBranch = prPath.pop();
               // if finalTarget branch is develop => it is a cloud version
               // if finalTarget branch is anything else => it is not a cloud version
-              if (['develop'].includes(finalTargetBranch)) {
+              if (finalTargetBranch === "develop" ) {
                 console.log("✅ Detected cloud scope.");
                 //return true;
                 releaseScope = "cloud";
-              } else {
+              } else if (/^dev-\d{2}\.\d{2}\.x$/.test(finalTargetBranch)){
                 console.log("✅ Detected onprem scope.");
                 //return false;
                 releaseScope = "onprem";
+              } else if (! currentMajorVersion.match(/\.(04|10)$/)) {
+                console.log("✅ Detected cloud scope.");
+                releaseScope = "cloud";
+              } else {
+                console.log("Not a cloud or onprem version.")
               }
             }
             // handle if triggering event is a push_tag of a release
