@@ -400,6 +400,7 @@ jobs:
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               // if finalTarget branch is develop => it is a cloud version
+              // if finalTarget branch is dev-xxx => it is an onprem version
               // if finalTarget branch is anything else => it is not a cloud version
               if (['develop'].includes(finalTargetBranch)) {
                 console.log("✅ Detected cloud scope.");
