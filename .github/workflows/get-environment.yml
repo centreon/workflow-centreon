@@ -353,7 +353,8 @@ jobs:
           #   echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           # fi
 
-          # REF_NAME="${{ github.head_ref || github.ref_name }}"
+          # Set REF_NAME (branch or tag)
+          REF_NAME="${{ github.head_ref || github.ref_name }}"
 
           # Get ref type (branch or tag)
           REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
