@@ -379,6 +379,8 @@ jobs:
           fi
 
           if [[ -n "$RELEASE_TYPE" ]]; then
+            echo "ref_type is: $REF_TYPE"
+            echo "release_type is: $RELEASE_TYPE"
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
         shell: bash
