@@ -401,6 +401,7 @@ jobs:
                 return true;
               } else {
                 return false;
+              }
             }
             // handle if triggering event is a push_tag of a release
             else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
