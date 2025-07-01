@@ -462,7 +462,7 @@ jobs:
 
               // Check if there is a release bundle tag existing or abort
               if (matchingTags.length === 0) {
-                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${tagSha}`);
+                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${targetSha}`);
                 return;
               }
 
