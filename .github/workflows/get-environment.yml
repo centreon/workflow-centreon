@@ -352,7 +352,7 @@ jobs:
           # if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
           #   echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           # fi
-          
+
           # Set REF_NAME (branch or tag)
           REF_NAME="${{ github.head_ref || github.ref_name }}"
 
@@ -391,40 +391,84 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
-            const eventName = process.env.GITHUB_EVENT_NAME;
-            const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
-            const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
-            const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
-
-            let releaseScope = "unknown";
-
             // handle if triggering event is a pull_request
-            if (eventName === "pull_request") {
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               // if finalTarget branch is develop => it is a cloud version
               // if finalTarget branch is anything else => it is not a cloud version
               if (['develop'].includes(finalTargetBranch)) {
-                console.log("✅ Detected cloud scope.");
-                //return true;
-                releaseScope = "cloud";
+                return true;
               } else {
-                console.log("✅ Detected onprem scope.");
-                //return false;
-                releaseScope = "onprem";
+                return false;
+            }
+            // handle if triggering event is a push_tag of a release
+            else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
+              // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
+              const release_tag = "${{ github.ref_name }}";
+              // Extract scope (cloud on onprem)
+              const release_scope = tag.split('-')[1]
+
+              if (release_scope === "onprem") {
+                core.info("✅ Detected on-prem release scope.");
+                return true;
+              } else if (edition === "cloud") {
+                core.info("✅ Detected cloud release scope.");
+                return false;
+              } else {
+                core.setFailed(`❌ Unknown release scope: ${release_scope}`);
               }
             }
             // handle if triggering event is a push_tag of a release
             // else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
             else if (eventName === "push" && ref.startsWith("refs/tags/")) {
               console.log(`🏷️ Tag pushed: ${refName}`);
-              // Extract scope (cloud on onprem)
-              // Format expected: release-cloud-25.05.1 or release-onprem-24.10.0
-              const scope = refName.split('-')[1];
+              // Extract scope (cloud on onprem) from tag description
+              // Format expected: "release-cloud-20270800-2708 or release-onprem-20270800-2410"
+              //const scope = refName.split('-')[1];
 
+              /////////
+              // get release bundle
+              // Get the commit SHA that this tag points to
+              const tagRef = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `tags/${refName}`
+              });
+
+              const tagSha = tagRef.data.object.sha;
+
+              // Find all refs/tags and filter to find the matching release-* tags
+              const tags = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner,
+                repo,
+                ref: "tags/"
+              });
+
+              const matchingTags = tags.filter(tag => {
+                return tag.object.sha === tagSha &&
+                      tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-");
+              });
+
+              // Check if there is a release bundle tag existing or abort
+              if (matchingTags.length === 0) {
+                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${tagSha}`);
+                return;
+              }
+
+              // Extract release scope from release bundle tag
+              const bundleTag = matchingTags[0].ref.replace("refs/tags/", ""); // e.g., release-cloud-20270800-2708
+              const scope = bundleTag.split('-')[1]; // 'cloud' or 'onprem'
+
+              if (scope !== "cloud" && scope !== "onprem") {
+                core.setFailed(`❌ Could not extract scope from bundle tag: ${bundleTag}`);
+                return;
+              }
+
+              ///////////
               // Store scope as releaseScope or fail if invalid scope
               if (scope === "cloud" || scope === "onprem") {
-                releaseScope = scope;
+                release_scope = scope;
               } else {
                 core.setFailed(`❌ Unknown scope in tag: ${refName}`);
                 return;
