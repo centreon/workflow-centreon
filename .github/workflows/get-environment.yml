@@ -391,6 +391,8 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            const { owner, repo } = context.repo;
+
             const eventName = process.env.GITHUB_EVENT_NAME;
             const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
             const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
