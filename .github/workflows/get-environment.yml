@@ -423,13 +423,52 @@ jobs:
             // else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
             else if (eventName === "push" && ref.startsWith("refs/tags/")) {
               console.log(`🏷️ Tag pushed: ${refName}`);
-              // Extract scope (cloud on onprem)
-              // Format expected: release-cloud-25.05.1 or release-onprem-24.10.0
-              const scope = refName.split('-')[1];
+              // Extract scope (cloud on onprem) from tag description
+              // Format expected: "release-cloud-20270800-2708 or release-onprem-20270800-2410"
+              //const scope = refName.split('-')[1];
 
+              /////////
+              // get release bundle
+              // Get the commit SHA that this tag points to
+              const tagRef = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `tags/${refName}`
+              });
+
+              const tagSha = tagRef.data.object.sha;
+
+              // Find all refs/tags and filter to find the matching release-* tags
+              const tags = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner,
+                repo,
+                ref: "tags/"
+              });
+
+              const matchingTags = tags.filter(tag => {
+                return tag.object.sha === tagSha &&
+                      tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-");
+              });
+
+              // Check if there is a release bundle tag existing or abort
+              if (matchingTags.length === 0) {
+                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${tagSha}`);
+                return;
+              }
+
+              // Extract release scope from release bundle tag
+              const bundleTag = matchingTags[0].ref.replace("refs/tags/", ""); // e.g., release-cloud-20270800-2708
+              const scope = bundleTag.split('-')[1]; // 'cloud' or 'onprem'
+
+              if (scope !== "cloud" && scope !== "onprem") {
+                core.setFailed(`❌ Could not extract scope from bundle tag: ${bundleTag}`);
+                return;
+              }
+
+              ///////////
               // Store scope as releaseScope or fail if invalid scope
               if (scope === "cloud" || scope === "onprem") {
-                releaseScope = scope;
+                release_scope = scope;
               } else {
                 core.setFailed(`❌ Unknown scope in tag: ${refName}`);
                 return;
