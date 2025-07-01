@@ -411,23 +411,6 @@ jobs:
               }
             }
             // handle if triggering event is a push_tag of a release
-            else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
-              // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
-              const release_tag = "${{ github.ref_name }}";
-              // Extract scope (cloud on onprem)
-              const release_scope = tag.split('-')[1]
-
-              if (release_scope === "onprem") {
-                core.info("✅ Detected on-prem release scope.");
-                return true;
-              } else if (edition === "cloud") {
-                core.info("✅ Detected cloud release scope.");
-                return false;
-              } else {
-                core.setFailed(`❌ Unknown release scope: ${release_scope}`);
-              }
-            }
-            // handle if triggering event is a push_tag of a release
             // else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
             else if (eventName === "push" && ref.startsWith("refs/tags/")) {
               console.log(`🏷️ Tag pushed: ${refName}`);
