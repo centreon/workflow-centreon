@@ -432,7 +432,6 @@ jobs:
               let targetSha = tagRef.data.object.sha;
 
               // Resolve to commit SHA (if annotated tag)
-              let targetSha = tagRef.data.object.sha;
               if (tagRef.data.object.type === "tag") {
                 const tagObj = await github.rest.git.getTag({
                   owner,
