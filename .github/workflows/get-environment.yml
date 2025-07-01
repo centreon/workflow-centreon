@@ -277,7 +277,7 @@ jobs:
                   console.log(`Matched 'stable' pattern`);
                   return 'stable';
                 default:
-                  console.log(No match found, defaulting to 'canary'`);
+                  console.log(`No match found, defaulting to 'canary'`);
                   return 'canary';
               }
             };
