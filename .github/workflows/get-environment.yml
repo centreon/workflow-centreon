@@ -437,8 +437,7 @@ jobs:
               });
 
               const matchingTags = tags.filter(tag => {
-                return tag.object.sha === tagSha &&
-                      tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-");
+                return tag.object.sha === tagSha && (tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-"));
               });
 
               // Check if there is a release bundle tag existing or abort
@@ -459,7 +458,7 @@ jobs:
               ///////////
               // Store scope as releaseScope or fail if invalid scope
               if (scope === "cloud" || scope === "onprem") {
-                release_scope = scope;
+                releaseScope = scope;
               } else {
                 core.setFailed(`❌ Unknown scope in tag: ${refName}`);
                 return;
