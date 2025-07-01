@@ -353,7 +353,8 @@ jobs:
           #   echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           # fi
 
-          # REF_NAME="${{ github.head_ref || github.ref_name }}"
+          # Set REF_NAME (branch or tag)
+          REF_NAME="${{ github.head_ref || github.ref_name }}"
 
           # Get ref type (branch or tag)
           REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
@@ -379,6 +380,8 @@ jobs:
           fi
 
           if [[ -n "$RELEASE_TYPE" ]]; then
+            echo "ref_type is: $REF_TYPE"
+            echo "release_type is: $RELEASE_TYPE"
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
         shell: bash
@@ -416,20 +419,96 @@ jobs:
                 core.setFailed(`❌ Unknown release scope: ${release_scope}`);
               }
             }
+            // handle if triggering event is a push_tag of a release
+            // else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
+            else if (eventName === "push" && ref.startsWith("refs/tags/")) {
+              console.log(`🏷️ Tag pushed: ${refName}`);
+              // Extract scope (cloud on onprem) from tag description
+              // Format expected: "release-cloud-20270800-2708 or release-onprem-20270800-2410"
+              //const scope = refName.split('-')[1];
 
-            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
-            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+              /////////
+              // get release bundle
+              // Get the commit SHA that this tag points to
+              const tagRef = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `tags/${refName}`
+              });
 
-            if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
-              return true;
+              const tagSha = tagRef.data.object.sha;
+
+              // Find all refs/tags and filter to find the matching release-* tags
+              const tags = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner,
+                repo,
+                ref: "tags/"
+              });
+
+              const matchingTags = tags.filter(tag => {
+                return tag.object.sha === tagSha &&
+                      tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-");
+              });
+
+              // Check if there is a release bundle tag existing or abort
+              if (matchingTags.length === 0) {
+                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${tagSha}`);
+                return;
+              }
+
+              // Extract release scope from release bundle tag
+              const bundleTag = matchingTags[0].ref.replace("refs/tags/", ""); // e.g., release-cloud-20270800-2708
+              const scope = bundleTag.split('-')[1]; // 'cloud' or 'onprem'
+
+              if (scope !== "cloud" && scope !== "onprem") {
+                core.setFailed(`❌ Could not extract scope from bundle tag: ${bundleTag}`);
+                return;
+              }
+
+              ///////////
+              // Store scope as releaseScope or fail if invalid scope
+              if (scope === "cloud" || scope === "onprem") {
+                release_scope = scope;
+              } else {
+                core.setFailed(`❌ Unknown scope in tag: ${refName}`);
+                return;
+              }
+            }
+            // handle if triggering event is a push
+            else if (eventName === "push" && ref.startsWith("refs/heads/")) {
+              const branch = ref.replace("refs/heads/", "");
+              console.log(`🚀 Push to branch: ${branch}`);
+
+              // compare developMajorVersion and curentMajorVersion
+              const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+              const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+
+              if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
+                releaseScope = "cloud";
+              }
+
+              // If month number is not 04 or 10, it is a cloud version
+              if (! currentMajorVersion.match(/\.(04|10)$/)) {
+                releaseScope = "cloud";
+              }
+            }
+            // in any other case, fail the run
+            else {
+              core.setFailed(`❌ Unsupported event: ${eventName}`);
+              return;
             }
 
-            // If month number is not 04 or 10, it is a cloud version
-            if (! currentMajorVersion.match(/\.(04|10)$/)) {
-              return true;
-            }
+            // Set isCloud if releaseScope value is "cloud"
+            const isCloud = releaseScope === "cloud";
 
-            return false;
+            console.log(`📦 releaseScope: ${releaseScope}`);
+            core.setOutput("releaseScope", releaseScope);
+            core.setOutput("isCloud", isCloud);
+
+            // If isCloud is not true, return false
+            //if (!isCloud) {
+            //  return false;
+            //}
 
       - name: Detect linked dev and stable branches
         id: linked_branches
@@ -545,7 +624,7 @@ jobs:
             const outputTable = [
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
-              ['is_cloud', '${{ steps.detect_cloud_version.outputs.result }}'],
+              ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],
