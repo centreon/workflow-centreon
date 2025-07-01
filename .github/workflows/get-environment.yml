@@ -429,7 +429,7 @@ jobs:
                 ref: `tags/${refName}`
               });
 
-              const tagSha = tagRef.data.object.sha;
+              let targetSha = tagRef.data.object.sha;
 
               // Resolve to commit SHA (if annotated tag)
               if (tagRef.data.object.type === "tag") {
