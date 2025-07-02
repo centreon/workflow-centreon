@@ -171,6 +171,8 @@ runs:
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
         # echo "PREVIOUS_STABLE_BRANCH_MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV" # should be removed
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
+        # Make NEW_MAJOR_VERSION available to other steps
+        echo "NEW_MAJOR_VERSION=$NEW_MAJOR_VERSION" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Add new stable tags to release branch
@@ -193,7 +195,7 @@ runs:
 
         # git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}" origin/${{ inputs.release_branch }}
         # git push --follow-tags
-        git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
+        git tag -a "${{ inputs.release_bundle_tag }}-$NEW_MAJOR_VERSION" -m "${{ inputs.release_bundle_tag }}"
         # git push origin --tags
         git push https://x-access-token:${{ inputs.centreon_technique_pat}}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
 
