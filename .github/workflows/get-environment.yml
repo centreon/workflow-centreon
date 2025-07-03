@@ -254,30 +254,62 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
+            const refType = process.env.GITHUB_REF_TYPE; // 'branch' or 'tag'
+            const eventName = process.env.GITHUB_EVENT_NAME;
+
+            console.log(`Ref: ${ref}`);
+            console.log(`Ref Type: ${refType}`);
+            console.log(`Event Name: ${eventName}`);
+
             const getStability = (ref) => {
               const refName = ref.replace(/^refs\/(heads|tags)\//, '');
+              console.log(`Determining stability for refName: ${refName}`);
 
               switch (true) {
                 case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(refName):
+                  console.log(`Matched 'unstable' pattern`);
                   return 'unstable';
                 case /(^release.+)|(^hotfix.+)/.test(refName):
+                  console.log(`Matched 'testing' pattern`);
                   return 'testing';
                 case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
+                  console.log(`Matched 'stable' pattern`);
                   return 'stable';
                 default:
+                  console.log(`No match found, defaulting to 'canary'`);
                   return 'canary';
               }
             };
 
-            core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
+            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z
+            const isStableTag = (tag) => {
+              const matched = /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag);
+              console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
+              return matched;
+            };
+
+            let stability;
+            if (eventName === 'push' && refType === 'tag') {
+              console.log(`Push event on a tag detected.`);
+              stability = isStableTag(ref) ? 'stable' : getStability(ref);
+            } else {
+              stability = getStability(ref);
+            }
+
+            console.log(`Final stability: ${stability}`);
+            core.setOutput('stability', stability);
 
             let isTargetingFeatureBranch = false;
+
             if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+              console.log(`Evaluating pull request target path for feature branch detection`);
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
 
               if (prPath.length && getStability(prPath[0]) === 'canary') {
+                console.log(`First target branch is canary — flagging as targeting feature branch`);
                 isTargetingFeatureBranch = true;
               }
 
@@ -286,12 +318,14 @@ jobs:
                 targetStability = getStability(branchName);
 
                 if (targetStability !== 'canary') {
+                  console.log(`Found a non-canary target: ${branchName}, stop checking`);
                   return false;
                 }
 
                 return true;
               });
 
+              console.log(`Final target stability: ${targetStability}`);
               core.setOutput('target_stability', targetStability);
             }
 
@@ -391,6 +425,15 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
+            const { owner, repo } = context.repo;
+
+            const eventName = process.env.GITHUB_EVENT_NAME;
+            const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
+            const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
+            const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
+
+            let releaseScope = "unknown";
+
             // handle if triggering event is a pull_request
             if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
@@ -401,23 +444,6 @@ jobs:
                 return true;
               } else {
                 return false;
-              }
-            }
-            // handle if triggering event is a push_tag of a release
-            else if ( "${{ github.event_name }}" === "push" && "${{ github.ref }}".startsWith("refs/tags/") ) {
-              // Storage only tag name (like 'centreon-cloud-25.05.1' or 'centreon-onprem-24.10.1')
-              const release_tag = "${{ github.ref_name }}";
-              // Extract scope (cloud on onprem)
-              const release_scope = tag.split('-')[1]
-
-              if (release_scope === "onprem") {
-                core.info("✅ Detected on-prem release scope.");
-                return true;
-              } else if (edition === "cloud") {
-                core.info("✅ Detected cloud release scope.");
-                return false;
-              } else {
-                core.setFailed(`❌ Unknown release scope: ${release_scope}`);
               }
             }
             // handle if triggering event is a push_tag of a release
@@ -437,7 +463,30 @@ jobs:
                 ref: `tags/${refName}`
               });
 
-              const tagSha = tagRef.data.object.sha;
+              let targetSha = tagRef.data.object.sha;
+
+              // Resolve to commit SHA (if annotated tag)
+              if (tagRef.data.object.type === "tag") {
+                const tagObj = await github.rest.git.getTag({
+                  owner,
+                  repo,
+                  tag_sha: targetSha,
+                });
+                targetSha = tagObj.data.object.sha;
+              }
+              console.log(`📌 Commit SHA from tag: ${targetSha}`);
+
+              const releaseTags = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: "tags/release-",
+                }
+              );
+              console.log(`🔍 Found ${releaseTags.length} release-* tags`);
+
+              let matchingTag = null;
 
               // Find all refs/tags and filter to find the matching release-* tags
               const tags = await github.paginate(github.rest.git.listMatchingRefs, {
@@ -446,34 +495,39 @@ jobs:
                 ref: "tags/"
               });
 
-              const matchingTags = tags.filter(tag => {
-                return tag.object.sha === tagSha &&
-                      tag.ref.includes("release-cloud-") || tag.ref.includes("release-onprem-");
-              });
+              for (const tag of releaseTags) {
+                let tagSha = tag.object.sha;
+                if (tag.object.type === "tag") {
+                  const tagObj = await github.rest.git.getTag({
+                    owner,
+                    repo,
+                    tag_sha: tagSha,
+                  });
+                  tagSha = tagObj.data.object.sha;
+                }
 
-              // Check if there is a release bundle tag existing or abort
-              if (matchingTags.length === 0) {
-                core.setFailed(`❌ No matching release-cloud-* or release-onprem-* tag found on commit: ${tagSha}`);
+                console.log(`🧷 Tag ${tag.ref} -> commit SHA: ${tagSha}`);
+
+                if (tagSha === targetSha) {
+                  matchingTag = tag.ref;
+                  break;
+                }
+              }
+
+              if (!matchingTag) {
+                core.setFailed(`❌ No matching release-* tag found on commit: ${targetSha}`);
                 return;
               }
 
-              // Extract release scope from release bundle tag
-              const bundleTag = matchingTags[0].ref.replace("refs/tags/", ""); // e.g., release-cloud-20270800-2708
-              const scope = bundleTag.split('-')[1]; // 'cloud' or 'onprem'
+              const bundleTag = matchingTag.replace("refs/tags/", "");
+              const scope = bundleTag.split("-")[1];
 
-              if (scope !== "cloud" && scope !== "onprem") {
-                core.setFailed(`❌ Could not extract scope from bundle tag: ${bundleTag}`);
+              if (!["cloud", "onprem"].includes(scope)) {
+                core.setFailed(`❌ Unknown scope in bundle tag: ${bundleTag}`);
                 return;
               }
 
-              ///////////
-              // Store scope as releaseScope or fail if invalid scope
-              if (scope === "cloud" || scope === "onprem") {
-                release_scope = scope;
-              } else {
-                core.setFailed(`❌ Unknown scope in tag: ${refName}`);
-                return;
-              }
+              releaseScope = scope;
             }
             // handle if triggering event is a push
             else if (eventName === "push" && ref.startsWith("refs/heads/")) {
