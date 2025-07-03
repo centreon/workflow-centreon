@@ -435,7 +435,8 @@ jobs:
             let releaseScope = "unknown";
 
             // handle if triggering event is a pull_request
-            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+            //if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+            if ( "${{ github.event_name }}" === "pull_request" ) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
               // if finalTarget branch is develop => it is a cloud version
