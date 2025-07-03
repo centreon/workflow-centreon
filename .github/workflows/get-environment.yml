@@ -439,6 +439,7 @@ jobs:
             if ( "${{ github.event_name }}" === "pull_request" ) {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const finalTargetBranch = prPath.pop();
+              console.log(`finalTargetBranch is: ${finalTargetBranch}`)
               // if finalTarget branch is develop => it is a cloud version
               // if finalTarget branch is anything else => it is not a cloud version
               if (['develop'].includes(finalTargetBranch)) {
