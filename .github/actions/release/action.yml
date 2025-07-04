@@ -191,11 +191,11 @@ runs:
         # Add new stable release bundle tag to release branch
         # If HOTIFX => set tag description as hotfix
         # If RELEASE => set tag description as release
-        echo "::notice::Tagging branch ${{ inputs.release_branch }} with ${{ inputs.release_bundle_tag }}."
+        echo "::notice::Tagging branch ${{ inputs.release_branch }} with ${{ inputs.release_bundle_tag }}-$NEW_MAJOR_VERSION."
 
         # git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}" origin/${{ inputs.release_branch }}
         # git push --follow-tags
-        git tag -a "${{ inputs.release_bundle_tag }}-$NEW_MAJOR_VERSION" -m "${{ inputs.release_bundle_tag }}"
+        git tag -a "${{ inputs.release_bundle_tag }}-$NEW_MAJOR_VERSION" -m "${{ inputs.release_bundle_tag }}-$NEW_MAJOR_VERSION""
         # git push origin --tags
         git push https://x-access-token:${{ inputs.centreon_technique_pat}}@github.com/${{ github.repository }} "${{ inputs.release_bundle_tag }}"
 
