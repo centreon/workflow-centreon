@@ -724,4 +724,3 @@ jobs:
             }
 
             core.summary.write();
-
