@@ -444,10 +444,8 @@ jobs:
               // if finalTarget branch is anything else => it is not a cloud version
               if (['develop'].includes(finalTargetBranch)) {
                 releaseScope = "cloud";
-                return true;
               } else {
                 releaseScope = "onprem";
-                return false;
               }
             }
             // handle if triggering event is a push_tag of a release
