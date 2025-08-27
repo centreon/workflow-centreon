@@ -24,9 +24,9 @@ jobs:
     with:
       module_directory:
       module_name: test-public
+      exclude_list:
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
       cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
       cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
-      exclude_list: ""
