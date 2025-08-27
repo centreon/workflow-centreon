@@ -29,4 +29,4 @@ jobs:
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
       cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
       cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
-      exclude_list:
+      exclude_list: ""
