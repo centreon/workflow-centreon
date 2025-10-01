@@ -60,7 +60,7 @@ jobs:
       trigger_delivery: ${{ steps.changes_trigger_checks.outputs.trigger_delivery }}
       trigger_api_testing: ${{ steps.changes_trigger_checks.outputs.trigger_api_testing }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
@@ -138,7 +138,7 @@ jobs:
     needs: [get-environment, changes]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_test_changes == 'true' }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Backend dependencies
         run: |
@@ -220,7 +220,7 @@ jobs:
     #     password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
@@ -308,7 +308,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Frontend web lint
         run: |
@@ -328,7 +328,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_frontend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Frontend unit test
         run: |
@@ -393,7 +393,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Backend unit test
         run: |
@@ -430,7 +430,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.changes.outputs.has_backend_changes == 'true' && needs.get-environment.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Branslation build
         run: |
@@ -523,7 +523,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Packaging
         run: |
@@ -655,7 +655,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Dockerize
         run: |
@@ -965,7 +965,7 @@ jobs:
     name: performances-test-${{ matrix.operating_system }}-${{ matrix.database }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Performance test stuff
         run: |
@@ -1020,7 +1020,7 @@ jobs:
 
   #   steps:
   #     - name: Checkout sources
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  #       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
   #     - name: Deliver sources
   #       uses: ./.github/actions/release-sources
@@ -1046,7 +1046,7 @@ jobs:
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && !cancelled() && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Publish openapi test stuff
         run: |
@@ -1146,7 +1146,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: RPM Delivery
         run: |
@@ -1206,7 +1206,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: DEB Delivery
         run: |
@@ -1255,7 +1255,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Promote
         run: |
@@ -1296,7 +1296,7 @@ jobs:
   #     ! contains(needs.*.result, 'cancelled')
   #   steps:
   #     - name: Checkout sources
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+  #       uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
   #     - name: List and delete cache
   #       run: |
